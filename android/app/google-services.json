@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "840846760572",
+    "firebase_url": "https://colibri2-6f7c6.firebaseio.com",
+    "project_id": "colibri2-6f7c6",
+    "storage_bucket": "colibri2-6f7c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840846760572:android:08968b6e37a9f2a448c7f9",
+        "android_client_info": {
+          "package_name": "com.colibri2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840846760572-3l10964odpb9joukthjfs70blbnvhs8j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgm7mrWqqz0evI7jyXs1p3emZyTsfgJ6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "840846760572-3l10964odpb9joukthjfs70blbnvhs8j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
