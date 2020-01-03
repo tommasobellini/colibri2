@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     elevation: 6,
-    backgroundColor: "#22509d"
+    backgroundColor: "#e91e63"
   },
   heading: {
     fontWeight: "bold",
@@ -60,12 +60,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#ddd"
   },
-  button: {
-    height: 36,
+  buttonView: {
+    height: 600,
     margin: 5,
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center"
+  },
+  startButton: {
+    backgroundColor: 'red'
   },
   buttonText: {
     color: "#22509d",

@@ -15,7 +15,7 @@ import {
   SafeAreaView,
   View,
   ActivityIndicator,
-  Modal
+  Modal,
 } from "react-native";
 import Toast from "@remobile/react-native-toast";
 import BluetoothSerial, {
@@ -27,6 +27,14 @@ import Button from "../components/Button";
 import DeviceList from "../components/DeviceList";
 import styles from "../styles";
 import firestore from '@react-native-firebase/firestore';
+import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/functions';
+import { BleManager } from "react-native-ble-plx"
+// import BleManager from "react-native-ble-manager"
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { addServices } from '../store/actions/BleActions';
+import { requestMTU } from 'react-native-ble-manager';
 
 // TODO(you): import any additional firebase services that you require for your app, e.g for auth:
 //    1) install the npm package: `yarn add @react-native-firebase/auth@alpha` - you do not need to
@@ -35,7 +43,6 @@ import firestore from '@react-native-firebase/firestore';
 //    3) import the package here in your JavaScript code: `import '@react-native-firebase/auth';`
 //    4) The Firebase Auth service is now available to use here: `firebase.auth().currentUser`
 global.Buffer = Buffer;
-
 const iconv = require("iconv-lite");
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\nCmd+D or shake for dev menu',
@@ -56,19 +63,21 @@ class BluetoothView extends React.Component {
       device: null,
       devices: [],
       scanning: false,
-      processing: false
+      processing: false,
+      temporing: 0,
+      services: {},
+      payload: null
     };
   }
 
   async componentDidMount() {
     this.events = this.props.events;
-
+    // BleManager.start()
     try {
       const [isEnabled, devices] = await Promise.all([
         BluetoothSerial.isEnabled(),
         BluetoothSerial.list()
       ]);
-
       this.setState({
         isEnabled,
         devices: devices.map(device => ({
@@ -319,38 +328,137 @@ class BluetoothView extends React.Component {
 
   connect = async id => {
     this.setState({ processing: true });
-
     try {
-      const connected = await BluetoothSerial.device(id).connect();
-
-      if (connected) {
-        Toast.showShortBottom(
-          `Connected to device ${connected.name}<${connected.id}>`
-        );
-
-        this.setState(({ devices, device }) => ({
-          processing: false,
-          device: {
-            ...device,
-            ...connected,
-            connected: true
-          },
-          devices: devices.map(v => {
-            if (v.id === connected.id) {
-              return {
-                ...v,
-                ...connected,
-                connected: true
+      let init = false
+      let completeJson = ''
+      const manager = new BleManager()
+      manager.connectToDevice(id, { requestMTU: 100, refreshGatt: true }).then(async (connected) => {
+          Toast.showShortTop('' + connected.mtu)
+          connected.discoverAllServicesAndCharacteristics().then(async ()=>{
+            const not = await manager.monitorCharacteristicForDevice(connected.id, 'dfb0', 'dfb1', async (error, characteristic) => {
+              if (error) {
+                  alert(JSON.stringify(error));
+                  return
               };
-            }
-
-            return v;
+              return new Promise(resolve => {
+                // const Buffer = require("buffer").Buffer;
+                // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
+                var base64 = require('base-64');
+                const decodedValue = base64.decode( characteristic.value);
+                // const jsonValue = JSON.parse(decodedValue)
+                  const blob = new Blob([decodedValue]).size; // -> 4
+                  let jsonList = []
+                  if(init === true){
+                    jsonList.push(decodedValue)
+                    if(decodedValue.indexOf('}', -1)){
+                      Toast.showLongTop('endddddd')
+                      init = false
+                      jsonList.forEach(item => {
+                        completeJson.concat(item)
+                      })
+                      
+                      Toast.showLongCenter('' + completeJson)
+                      jsonList = []
+                    }
+                  }
+                  if(decodedValue.indexOf('{', 0)){
+                    init = true
+                    jsonList.push(decodedValue)
+                  }
+                  
+                
+                  
+                  resolve(characteristic);
+              })
+          });
+            Toast.showLongCenter(JSON.stringify(not))
           })
-        }));
-      } else {
-        Toast.showShortBottom(`Failed to connect to device <${id}>`);
-        this.setState({ processing: false });
-      }
+         
+        //   const all = await manager.servicesForDevice(id)
+        //   Toast.showLongBottom(all)
+        //   manager.readCharacteristicForDevice(id, 'dfb0', 'dfb1').then(value => {
+        //     Toast.showLongCenter(JSON.stringify(value))
+        //   })
+        //   .catch((error) => {
+        //     // Handle errors
+        //     Toast.showLongTop('error: ' + error)
+        // });
+        })
+        .catch((error) => {
+          // Handle errors
+          Toast.showLongTop('error: ' + error)
+      });
+        // .then((device) => {
+        //   const services = device.services()
+        //   Toast.showLongTop(JSON.stringify(services))
+        //   // Do work on device with services and characteristics
+        // })
+        // ----------------------
+        // const connected = BleManager.connect(id).then(() => {
+        //   setInterval(async ()=>{
+        //     // const data = await BleManager.read(id,'dfb0', 'dfb1')
+        //     BleManager.read(id, 'dfb0', 'dfb1').then(data=>{
+        //       Toast.showLongBottom(JSON.stringify(data[0]))
+        //     })
+        //   },500)
+        //   BleManager.retrieveServices(id).then(async (peripheralInfo) => {
+            
+            
+        //     this.setState({payload: JSON.stringify(peripheralInfo)})
+        //     // var service = peripheralInfo['characteristics'][3]['service'];
+        //     // var crustCharacteristic = peripheralInfo['characteristics'][1]['characteristic'];
+        //     //   const data = await BleManager.read(id, service, '2a00')
+        //   })
+        // })
+       
+
+        if (connected) {
+          
+          this.setState(({ devices, device }) => ({
+            processing: false,
+            device: {
+              ...device,
+              ...connected,
+              connected: true
+            },
+            devices: devices.map(v => {
+              if (v.id === connected.id) {
+                return {
+                  ...v,
+                  ...connected,
+                  connected: true
+                };
+              }
+  
+              return v;
+            })
+          }));
+        } else {
+          Toast.showShortBottom(`Failed to connect to device <${id}>`);
+          this.setState({ processing: false });
+        }
+        // return device.discoverAllServicesAndCharacteristics()
+      // }).then(device2 => {
+      //   return device2.services()
+      // }).then(services => {
+      //   const service = {}
+      //   Toast.showShortCenter(services.map(x=>x.uuid).toString())
+      //   service['UUIDS'] = services
+      //   service['ID'] = id;
+      //   Toast.showLongTop(service.toString())
+
+      // })
+
+      // const all = await manager.discoverAllServicesAndCharacteristicsForDevice(connected.id)
+      // Toast.showLongCenter(all.services)
+      // service['serviceUUID'] = connected.serviceUUIDs;
+      // service['characteristicUUID'] = connected.characteristicsForService(service['serviceUUID']).characteristicUUID
+      // this.setState({services: service})
+      // this.props.addServices(service);
+      // const myDevice = BluetoothSerial.device(id);
+      // Toast.showShortTop("" + myDevice.name);
+      // const connected = await myDevice.connect(id);
+      
     } catch (e) {
       Toast.showShortBottom(e.message);
       this.setState({ processing: false });
@@ -387,16 +495,47 @@ class BluetoothView extends React.Component {
   };
   read = async (id) => {
     Toast.showShortBottom("ref is...");
-
+    var temporing = 0;
     try {
       console.log(id)
       setInterval(async function(){
         const data = await BluetoothSerial.readFromDevice();
         Toast.showShortTop(data);
+        console.log(typeof data)
+        
 
-        const snap = await firestore()
-        .collection('devices').add(JSON.parse(data));
-      }, 2000);
+        var getHandPosition = firebase.functions().httpsCallable('getHandPosition');
+        getHandPosition({message: JSON.parse(data)}).then((res)=>{
+            Toast.showShortBottom("message is : " + res.data.message)
+            if(res.data.position === 'TOP' || res.data.position === 'BOTTOM' || res.data.position === 'SIDE') {
+              var tempDataList = [];
+              tempDataList.push(data)
+              temporing = temporing + 500
+              if(temporing >= 3000) {
+                if(tempDataList.length > 0) {
+                  tempDataList.forEach(item => {
+                    const snap = firestore().collection('devices').add(JSON.parse(item));
+                  })
+                  tempDataList = []
+                } else {
+                  const snap = firestore().collection('devices').add(JSON.parse(data));
+                }
+              }
+            } else {
+              temporing = 0;
+            }
+
+            // Toast.showShortCenter("value is : " + res.data.value)
+        }).catch(function(error) {
+            // Getting the Error details.
+            var code = error.code;
+            var message = error.message;
+            var details = error.details;
+            Toast.showShortBottom("error is : " + message)
+
+          });
+          
+      }, 500);
     } catch(e){
       Toast.showShortBottom(e.message);
     }
@@ -432,109 +571,109 @@ class BluetoothView extends React.Component {
     }
   };
 
-  renderModal = (device, processing) => {
-    if (!device) return null;
+  // renderModal = (device, processing) => {
+  //   if (!device) return null;
 
-    const { id, name, paired, connected } = device;
+  //   const { id, name, paired, connected } = device;
 
-    return (
-      <Modal
-        animationType="fade"
-        transparent={false}
-        visible={true}
-        onRequestClose={() => {}}
-      >
-        {device ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
-            <Text style={{ fontSize: 14 }}>{`<${id}>`}</Text>
+  //   return (
+  //     <Modal
+  //       animationType="fade"
+  //       transparent={false}
+  //       visible={true}
+  //       onRequestClose={() => {}}
+  //     >
+  //       {device ? (
+  //         <View
+  //           style={{
+  //             flex: 1,
+  //             justifyContent: "center",
+  //             alignItems: "center"
+  //           }}
+  //         >
+  //           <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+  //           <Text style={{ fontSize: 14 }}>{`<${id}>`}</Text>
 
-            {processing && (
-              <ActivityIndicator
-                style={{ marginTop: 15 }}
-                size={Platform.OS === "ios" ? 1 : 60}
-              />
-            )}
+  //           {processing && (
+  //             <ActivityIndicator
+  //               style={{ marginTop: 15 }}
+  //               size={Platform.OS === "ios" ? 1 : 60}
+  //             />
+  //           )}
 
-            {!processing && (
-              <View style={{ marginTop: 20, width: "50%" }}>
-                {Platform.OS !== "ios" && (
-                  <Button
-                    title={paired ? "Unpair" : "Pair"}
-                    style={{
-                      backgroundColor: "#22509d"
-                    }}
-                    textStyle={{ color: "#fff" }}
-                    onPress={() => this.toggleDevicePairing(device)}
-                  />
-                )}
-                <Button
-                  title={connected ? "Disconnect" : "Connect"}
-                  style={{
-                    backgroundColor: "#22509d"
-                  }}
-                  textStyle={{ color: "#fff" }}
-                  onPress={() => this.toggleDeviceConnection(device)}
-                />
-                {connected && (
-                  <React.Fragment>
-                    <Button
-                      title="Read"
-                      style={{
-                        backgroundColor: "#22509d"
-                      }}
-                      textStyle={{ color: "#fff" }}
-                      onPress={() =>
-                        this.read(
-                          id                          
-                        )
-                      }
-                    />
-                    <Button
-                      title="Write"
-                      style={{
-                        backgroundColor: "#22509d"
-                      }}
-                      textStyle={{ color: "#fff" }}
-                      onPress={() =>
-                        this.write(
-                          id,
-                          "This is the test message\r\nDoes it work?\r\nTell me it works!\r\n"
-                        )
-                      }
-                    />
-                    <Button
-                      title="Write packets"
-                      style={{
-                        backgroundColor: "#22509d"
-                      }}
-                      textStyle={{ color: "#fff" }}
-                      onPress={() =>
-                        this.writePackets(
-                          id,
-                          "This is the test message\r\nDoes it work?\r\nTell me it works!\r\n"
-                        )
-                      }
-                    />
-                  </React.Fragment>
-                )}
-                <Button
-                  title="Close"
-                  onPress={() => this.setState({ device: null })}
-                />
-              </View>
-            )}
-          </View>
-        ) : null}
-      </Modal>
-    );
-  };
+  //           {/* {!processing && (
+  //             <View style={{ marginTop: 20, width: "50%" }}>
+  //               {Platform.OS !== "ios" && (
+  //                 <Button
+  //                   title={paired ? "Unpair" : "Pair"}
+  //                   style={{
+  //                     backgroundColor: "#22509d"
+  //                   }}
+  //                   textStyle={{ color: "#fff" }}
+  //                   onPress={() => this.toggleDevicePairing(device)}
+  //                 />
+  //               )}
+  //               <Button
+  //                 title={connected ? "Disconnect" : "Connect"}
+  //                 style={{
+  //                   backgroundColor: "#22509d"
+  //                 }}
+  //                 textStyle={{ color: "#fff" }}
+  //                 onPress={() => this.toggleDeviceConnection(device)}
+  //               />
+  //               {connected && (
+  //                 <React.Fragment>
+  //                   <Button
+  //                     title="Read"
+  //                     style={{
+  //                       backgroundColor: "#22509d"
+  //                     }}
+  //                     textStyle={{ color: "#fff" }}
+  //                     onPress={() =>
+  //                       this.read(
+  //                         id                          
+  //                       )
+  //                     }
+  //                   />
+  //                   <Button
+  //                     title="Write"
+  //                     style={{
+  //                       backgroundColor: "#22509d"
+  //                     }}
+  //                     textStyle={{ color: "#fff" }}
+  //                     onPress={() =>
+  //                       this.write(
+  //                         id,
+  //                         "This is the test message\r\nDoes it work?\r\nTell me it works!\r\n"
+  //                       )
+  //                     }
+  //                   />
+  //                   <Button
+  //                     title="Write packets"
+  //                     style={{
+  //                       backgroundColor: "#22509d"
+  //                     }}
+  //                     textStyle={{ color: "#fff" }}
+  //                     onPress={() =>
+  //                       this.writePackets(
+  //                         id,
+  //                         "This is the test message\r\nDoes it work?\r\nTell me it works!\r\n"
+  //                       )
+  //                     }
+  //                   />
+  //                 </React.Fragment>
+  //               )}
+  //               <Button
+  //                 title="Close"
+  //                 onPress={() => this.setState({ device: null })}
+  //               />
+  //             </View>
+  //           )} */}
+  //         </View>
+  //       ) : null}
+  //     </Modal>
+  //   );
+  // };
 
   render() {
     const { isEnabled, device, devices, scanning, processing } = this.state;
@@ -542,7 +681,7 @@ class BluetoothView extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.topBar}>
-          <Text style={styles.heading}>Bluetooth Example</Text>
+          <Text style={styles.heading}>Device</Text>
           <View style={styles.enableInfoWrapper}>
             <Text style={{ fontSize: 14, color: "#fff", paddingRight: 10 }}>
               {isEnabled ? "ON" : "OFF"}
@@ -550,7 +689,6 @@ class BluetoothView extends React.Component {
             <Switch onValueChange={this.toggleBluetooth} value={isEnabled} />
           </View>
         </View>
-
         {scanning ? (
           isEnabled && (
             <View
@@ -574,10 +712,13 @@ class BluetoothView extends React.Component {
           )
         ) : (
           <React.Fragment>
-            {this.renderModal(device, processing)}
+            {/* {this.renderModal(device, processing)} */}
+            <Text>
+        { this.state.services.id }
+            </Text>
             <DeviceList
               devices={devices}
-              onDevicePressed={device => this.setState({ device })}
+              onDevicePressed={device => this.toggleDeviceConnection(device)}
               onRefresh={this.listDevices}
             />
           </React.Fragment>
@@ -589,4 +730,23 @@ class BluetoothView extends React.Component {
   }
 }
 
-export default withSubscription({ subscriptionName: "events" })(BluetoothView);
+
+const mapStateToProps = (state) => {
+  const { services } = state
+  return { services
+   }
+};
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    addServices,
+  }, dispatch)
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(BluetoothView);
+
+
+// export default connect(mapStateToProps)(BluetoothView);
+
+
+
+// export default withSubscription({ subscriptionName: "events" })(BluetoothView);

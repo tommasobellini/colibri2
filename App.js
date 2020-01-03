@@ -1,9 +1,15 @@
-import React, { Component } from 'react';
+  import React, { Component } from 'react';
 import {
   View, Text
 } from "react-native";
 import TabBar from "./components/TabBar";
 import BluetoothView from "./views/BluetoothView";
+import DashboardView from "./views/DashboardView";
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import bleReducer from './store/reducers/BleReducer';
+
+const store = createStore(bleReducer);
 
 class App extends React.Component {
   constructor(props) {
@@ -15,6 +21,7 @@ class App extends React.Component {
 
   render() {
     return (
+      <Provider store={ store }>
       <TabBar
         bgNavBar="#e91e63"
       >
@@ -22,10 +29,8 @@ class App extends React.Component {
                 icon="home"
                 selectedIcon="home"
                 title="Home"
-                screenBackgroundColor={{ backgroundColor: '#008080' }}
             >
-              <View>
-              </View>
+              <DashboardView />
             </TabBar.Item>
             <TabBar.Item
                 icon="broadcast-tower"
@@ -46,6 +51,7 @@ class App extends React.Component {
               </View>
             </TabBar.Item>
           </TabBar>
+        </Provider>
     );
   }
 }
