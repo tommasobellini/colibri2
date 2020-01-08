@@ -33,7 +33,7 @@ import { BleManager } from "react-native-ble-plx"
 // import BleManager from "react-native-ble-manager"
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { addServices } from '../store/actions/BleActions';
+import { addDevice } from '../store/actions/BleActions';
 import { requestMTU } from 'react-native-ble-manager';
 
 // TODO(you): import any additional firebase services that you require for your app, e.g for auth:
@@ -60,7 +60,7 @@ class BluetoothView extends React.Component {
     this.events = null;
     this.state = {
       isEnabled: false,
-      device: null,
+      device: 3,
       devices: [],
       scanning: false,
       processing: false,
@@ -328,51 +328,20 @@ class BluetoothView extends React.Component {
 
   connect = async id => {
     this.setState({ processing: true });
+    console.log(this.props)
     try {
       let init = false
+      let jsonList = ''
+      var temporing = 0;
+
       let completeJson = ''
       const manager = new BleManager()
       manager.connectToDevice(id, { requestMTU: 100, refreshGatt: true }).then(async (connected) => {
-          Toast.showShortTop('' + connected.mtu)
-          connected.discoverAllServicesAndCharacteristics().then(async ()=>{
-            const not = await manager.monitorCharacteristicForDevice(connected.id, 'dfb0', 'dfb1', async (error, characteristic) => {
-              if (error) {
-                  alert(JSON.stringify(error));
-                  return
-              };
-              return new Promise(resolve => {
-                // const Buffer = require("buffer").Buffer;
-                // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
-                var base64 = require('base-64');
-                const decodedValue = base64.decode( characteristic.value);
-                // const jsonValue = JSON.parse(decodedValue)
-                  const blob = new Blob([decodedValue]).size; // -> 4
-                  let jsonList = []
-                  if(init === true){
-                    jsonList.push(decodedValue)
-                    if(decodedValue.indexOf('}', -1)){
-                      Toast.showLongTop('endddddd')
-                      init = false
-                      jsonList.forEach(item => {
-                        completeJson.concat(item)
-                      })
-                      
-                      Toast.showLongCenter('' + completeJson)
-                      jsonList = []
-                    }
-                  }
-                  if(decodedValue.indexOf('{', 0)){
-                    init = true
-                    jsonList.push(decodedValue)
-                  }
-                  
-                
-                  
-                  resolve(characteristic);
-              })
-          });
-            Toast.showLongCenter(JSON.stringify(not))
-          })
+        this.setState({device: connected})
+        this.props.add(connected);
+
+        Toast.showShortTop('' + connected.mtu)
+          
          
         //   const all = await manager.servicesForDevice(id)
         //   Toast.showLongBottom(all)
@@ -540,36 +509,36 @@ class BluetoothView extends React.Component {
       Toast.showShortBottom(e.message);
     }
   };
-  write = async (id, message) => {
-    try {
-      await BluetoothSerial.device(id).write(message);
-      Toast.showShortBottom("Successfuly wrote to device");
-    } catch (e) {
-      Toast.showShortBottom(e.message);
-    }
-  };
+  // write = async (id, message) => {
+  //   try {
+  //     await BluetoothSerial.device(id).write(message);
+  //     Toast.showShortBottom("Successfuly wrote to device");
+  //   } catch (e) {
+  //     Toast.showShortBottom(e.message);
+  //   }
+  // };
 
-  writePackets = async (id, message, packetSize = 64) => {
-    try {
-      const device = BluetoothSerial.device(id);
-      const toWrite = iconv.encode(message, "cp852");
-      const writePromises = [];
-      const packetCount = Math.ceil(toWrite.length / packetSize);
+  // writePackets = async (id, message, packetSize = 64) => {
+  //   try {
+  //     const device = BluetoothSerial.device(id);
+  //     const toWrite = iconv.encode(message, "cp852");
+  //     const writePromises = [];
+  //     const packetCount = Math.ceil(toWrite.length / packetSize);
 
-      for (var i = 0; i < packetCount; i++) {
-        const packet = new Buffer(packetSize);
-        packet.fill(" ");
-        toWrite.copy(packet, 0, i * packetSize, (i + 1) * packetSize);
-        writePromises.push(device.write(packet));
-      }
+  //     for (var i = 0; i < packetCount; i++) {
+  //       const packet = new Buffer(packetSize);
+  //       packet.fill(" ");
+  //       toWrite.copy(packet, 0, i * packetSize, (i + 1) * packetSize);
+  //       writePromises.push(device.write(packet));
+  //     }
 
-      await Promise.all(writePromises).then(() =>
-        Toast.showShortBottom("Writed packets")
-      );
-    } catch (e) {
-      Toast.showShortBottom(e.message);
-    }
-  };
+  //     await Promise.all(writePromises).then(() =>
+  //       Toast.showShortBottom("Writed packets")
+  //     );
+  //   } catch (e) {
+  //     Toast.showShortBottom(e.message);
+  //   }
+  // };
 
   // renderModal = (device, processing) => {
   //   if (!device) return null;
@@ -713,9 +682,7 @@ class BluetoothView extends React.Component {
         ) : (
           <React.Fragment>
             {/* {this.renderModal(device, processing)} */}
-            <Text>
-        { this.state.services.id }
-            </Text>
+            
             <DeviceList
               devices={devices}
               onDevicePressed={device => this.toggleDeviceConnection(device)}
@@ -732,15 +699,20 @@ class BluetoothView extends React.Component {
 
 
 const mapStateToProps = (state) => {
-  const { services } = state
-  return { services
+  const { device } = state
+  console.log(state)
+  return { 
+    device
    }
 };
-const mapDispatchToProps = dispatch => (
-  bindActionCreators({
-    addServices,
-  }, dispatch)
-);
+const mapDispatchToProps = dispatch => {
+  return {
+    add: (name) => {
+      console.log(name)
+      dispatch(addDevice(name))
+    }
+  }
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(BluetoothView);
 
