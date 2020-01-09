@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
-
+// pantone acquamarine 4ec5a5
+// coral color f5fcff
 const styles = StyleSheet.create({
   container: {
     flex: 0.9,
@@ -12,7 +13,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     elevation: 6,
-    backgroundColor: "#e91e63"
+    backgroundColor: "#117893"
   },
   heading: {
     fontWeight: "bold",

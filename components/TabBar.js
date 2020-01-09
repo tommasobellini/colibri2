@@ -101,7 +101,7 @@ export default class TabBar extends Component{
                             React.Children.map(children,  (child,i) => {
                                 const imgSrc = selectedIndex === i && showIcon ?
                                     <View style={styles.circle}>
-                                        <Icon name={child.props.selectedIcon} size={30} color="#e91e63" />
+                                        <Icon name={child.props.selectedIcon} size={30} color="#117893" />
                                         {/* <Image
                                             style={styles.navImage}
                                             resizeMode="cover"

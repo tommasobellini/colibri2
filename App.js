@@ -23,7 +23,7 @@ class App extends React.Component {
     return (
       <Provider store={store}>
         <TabBar
-          bgNavBar="#e91e63"
+          bgNavBar="#117893"
         >
           <TabBar.Item
             icon="home"
@@ -55,5 +55,9 @@ class App extends React.Component {
     );
   }
 }
-
+// pantone - aquamarine --> 4ec5a5
+// pantone - blue --> 34558b
+// pantone - blue light --> 798fa8
+// pantone - orange --> fd823e
+// pantone - blue marine --> 117893
 export default App;

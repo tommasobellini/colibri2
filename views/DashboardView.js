@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
-  ScrollView,
-  Text,
-  TouchableHighlight,
-  View,
-  RefreshControl,
-  SafeAreaView,
-  Switch,
-  ActivityIndicator,
-  Button,
-  Dimensions
+    ScrollView,
+    Text,
+    TouchableHighlight,
+    View,
+    RefreshControl,
+    SafeAreaView,
+    Switch,
+    ActivityIndicator,
+    Button,
+    Dimensions
 } from "react-native";
 import {
     LineChart,
@@ -18,10 +18,10 @@ import {
     ProgressChart,
     ContributionGraph,
     StackedBarChart
-  } from "react-native-chart-kit";
+} from "react-native-chart-kit";
 import BluetoothSerial, {
     withSubscription
-  } from "react-native-bluetooth-serial-next";
+} from "react-native-bluetooth-serial-next";
 import styles from "../styles";
 import firebase from '@react-native-firebase/app';
 import Toast from "@remobile/react-native-toast";
@@ -46,16 +46,16 @@ const TOP_VIEW_MAX_AZ = 1;
 
 class DashboardView extends React.Component {
     constructor(props) {
-      super(props);
-      this.state = {
-          isEnabled: true,
-          isAlreadyMounted: false,
-          dataList: [],
-          ciao: true,
-          dataX: [0],
-          dataY: [0],
-          dataZ: [0]
-      };
+        super(props);
+        this.state = {
+            isEnabled: true,
+            isAlreadyMounted: false,
+            dataList: [],
+            ciao: true,
+            dataX: [0],
+            dataY: [0],
+            dataZ: [0]
+        };
     }
     componentDidMount() {
         const backUrl = 'http://192.168.1.80:3000/v1/'
@@ -86,7 +86,7 @@ class DashboardView extends React.Component {
         // .catch(err => {
         //     console.log(err)
         // })
-        if(!this.props.alreadyMounted) {
+        if (!this.props.alreadyMounted) {
             console.log('did mount')
             this.props.mounted(true)
             const connected = this.props.device
@@ -95,95 +95,150 @@ class DashboardView extends React.Component {
             let jsonList = ''
             var temporing = 0;
             console.log(connected)
-            connected.discoverAllServicesAndCharacteristics().then(async ()=>{
+            connected.discoverAllServicesAndCharacteristics().then(async () => {
                 const not = await manager.monitorCharacteristicForDevice(connected.id, 'dfb0', 'dfb1', async (error, characteristic) => {
-                  if (error) {
-                      alert(JSON.stringify(error));
-                      return
-                  };
-                  console.log(characteristic)
-                  return new Promise(resolve => {
-                    // const Buffer = require("buffer").Buffer;
-                    // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
-                    var base64 = require('base-64');
-                    const decodedValue = base64.decode( characteristic.value);
-                      if(init == true){
-                        jsonList += decodedValue
-                        if(decodedValue.indexOf('}', -1) > 0){
-                          let completeJson = jsonList
-                          console.log(completeJson)
-                          let message = JSON.stringify({message: JSON.parse(completeJson)})
-                          console.log(message)
-                          fetch(backUrl + 'getHandPosition', {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json',
-                                    'Accept-Language': 'ru,en;q=0.9',
-                                },
-                                body: message
-                            }).then(resp => {
-                                resp.json().then(responseJson => {
-                                    console.log(responseJson)
-                            })
-                            })
-                            .catch(err => {
-                                console.log(err)
-                            })
-                           // restart init json message
-                           init = false
-                           jsonList = []
-                          // check hand position
-                        //   var getHandPosition = firebase.functions().httpsCallable('getHandPosition');
-                        //   getHandPosition({message: JSON.parse(completeJson)}).then((res)=>{
-                        //       Toast.showShortBottom("message is : " + res.data.message)
-                        //       if(res.data.position === 'TOP' || res.data.position === 'BOTTOM' || res.data.position === 'SIDE') {
-                        //         var tempDataList = [];
-                        //         tempDataList.push(completeJson)
-                        //         temporing = temporing + 500
-                        //         if(temporing >= 3000) {
-                        //           if(tempDataList.length > 0) {
-                        //             tempDataList.forEach(item => {
-                        //               const snap = firestore().collection('devices').add(JSON.parse(item));
-                        //             })
-                        //             tempDataList = []
-                        //           } else {
-                        //             const snap = firestore().collection('devices').add(JSON.parse(completeJson));
-                        //           }
-                        //         }
-                        //       } else {
-                        //         temporing = 0;
-                        //       }
-                  
-                        //       // Toast.showShortCenter("value is : " + res.data.value)
-                        //   }).catch(function(error) {
-                        //       // Getting the Error details.
-                        //       var code = error.code;
-                        //       var message = error.message;
-                        //       var details = error.details;
-                        //       Toast.showShortBottom("error is : " + message)
-                        //       console.log("error is : " + completeJson)
-                  
-                        //     });
-    
-                         
+                    if (error) {
+                        alert(JSON.stringify(error));
+                        return
+                    };
+                    console.log(characteristic)
+                    return new Promise(resolve => {
+                        // const Buffer = require("buffer").Buffer;
+                        // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
+                        var base64 = require('base-64');
+                        const decodedValue = base64.decode(characteristic.value);
+                        if (init == true) {
+                            jsonList += decodedValue
+                            if (decodedValue.indexOf('}', -1) > 0) {
+                                let completeJson = jsonList
+                                console.log(completeJson)
+                                let message = JSON.stringify({ message: JSON.parse(completeJson) })
+
+                                const AZ = JSON.parse(completeJson)['AZ']
+                                const min = TOP_VIEW_MIN_AZ;
+                                const max = TOP_VIEW_MAX_AZ;
+                                const step = ((max - min) / 2) / 10;
+                                const average = min + ((max - min) / 2);
+
+                                let percentageValue = 0
+                                const percent_100 = [average - step * 10, average + step * 10]
+                                if (AZ >= percent_100[0] && AZ <= percent_100[1]) {
+                                    percentageValue = 100
+                                }
+                                const percent_90 = [average - step * 9, average + step * 9]
+                                if (AZ >= percent_90[0] && AZ <= percent_90[1]) {
+                                    percentageValue = 90
+
+                                }
+
+                                const percent_80 = [average - step * 8, average + step * 8]
+                                if (AZ >= percent_80[0] && AZ <= percent_80[1]) {
+                                    percentageValue = 80
+
+                                }
+                                const percent_70 = [average - step * 7, average + step * 7]
+                                if (AZ >= percent_70[0] && AZ <= percent_70[1]) {
+                                    percentageValue = 70
+
+                                }
+                                const percent_60 = [average - step * 6, average + step * 6]
+                                if (AZ >= percent_60[0] && AZ <= percent_60[1]) {
+                                    percentageValue = 60
+
+                                }
+                                const percent_50 = [average - step * 5, average + step * 5]
+                                if (AZ >= percent_50[0] && AZ <= percent_50[1]) {
+                                    percentageValue = 50
+
+                                }
+                                const percent_40 = [average - step * 4, average + step * 4]
+                                if (AZ >= percent_40[0] && AZ <= percent_40[1]) {
+                                    percentageValue = 40
+
+                                }
+                                const percent_30 = [average - step * 3, average + step * 3]
+                                if (AZ >= percent_30[0] && AZ <= percent_30[1]) {
+                                    percentageValue = 30
+
+                                }
+                                const percent_20 = [average - step * 2, average + step * 2]
+                                if (AZ >= percent_20[0] && AZ <= percent_20[1]) {
+                                    percentageValue = 20
+
+                                }
+
+                                const percent_10 = [average - step, average + step]
+                                if (AZ >= percent_10[0] && AZ <= percent_10[1]) {
+                                    percentageValue = 10
+                                }
+                                console.log('Percentage vibes: ' + percentageValue)
+                                console.log(message)
+                                fetch(backUrl + 'getHandPosition', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'Accept-Language': 'ru,en;q=0.9',
+                                    },
+                                    body: message
+                                }).then(resp => {
+                                    resp.json().then(responseJson => {
+                                        console.log(responseJson)
+                                    })
+                                })
+                                    .catch(err => {
+                                        console.log(err)
+                                    })
+                                // restart init json message
+                                init = false
+                                jsonList = []
+                                // check hand position
+                                //   var getHandPosition = firebase.functions().httpsCallable('getHandPosition');
+                                //   getHandPosition({message: JSON.parse(completeJson)}).then((res)=>{
+                                //       Toast.showShortBottom("message is : " + res.data.message)
+                                //       if(res.data.position === 'TOP' || res.data.position === 'BOTTOM' || res.data.position === 'SIDE') {
+                                //         var tempDataList = [];
+                                //         tempDataList.push(completeJson)
+                                //         temporing = temporing + 500
+                                //         if(temporing >= 3000) {
+                                //           if(tempDataList.length > 0) {
+                                //             tempDataList.forEach(item => {
+                                //               const snap = firestore().collection('devices').add(JSON.parse(item));
+                                //             })
+                                //             tempDataList = []
+                                //           } else {
+                                //             const snap = firestore().collection('devices').add(JSON.parse(completeJson));
+                                //           }
+                                //         }
+                                //       } else {
+                                //         temporing = 0;
+                                //       }
+
+                                //       // Toast.showShortCenter("value is : " + res.data.value)
+                                //   }).catch(function(error) {
+                                //       // Getting the Error details.
+                                //       var code = error.code;
+                                //       var message = error.message;
+                                //       var details = error.details;
+                                //       Toast.showShortBottom("error is : " + message)
+                                //       console.log("error is : " + completeJson)
+
+                                //     });
+
+
+                            }
                         }
-                      }
-                      if(decodedValue.indexOf('{', 0) >= 0){
-                        init = true
-                        jsonList += decodedValue
-                      }
-                    
-                      
-                      resolve(characteristic);
-                  })
-              });
-              })
+                        if (decodedValue.indexOf('{', 0) >= 0) {
+                            init = true
+                            jsonList += decodedValue
+                        }
+
+
+                        resolve(characteristic);
+                    })
+                });
+            })
         }
-        const min = TOP_VIEW_MIN_AZ;
-        const max = TOP_VIEW_MAX_AZ;
-        const step = ((max-min)/2)/10;
-        console.log(step)
     }
 
     startButton = () => async () => {
@@ -194,47 +249,47 @@ class DashboardView extends React.Component {
     }
 
     read = async (app) => {
-        app.setState({ciao: false})
+        app.setState({ ciao: false })
         Toast.showLongTop(app.toString());
         Toast.showShortBottom("ref is...");
         try {
             const dataX = []
             const dataY = []
             const dataZ = []
-          setInterval(async function(){
-            // new ble function
-            const manager = new BleManager()
-            const services = this.props.services
-            Toast.showLongCenter(services)
-            const data = await manager.readCharacteristicForDevice()
+            setInterval(async function () {
+                // new ble function
+                const manager = new BleManager()
+                const services = this.props.services
+                Toast.showLongCenter(services)
+                const data = await manager.readCharacteristicForDevice()
 
-            // old bl serial function
-            // const data = await BluetoothSerial.readFromDevice();
-            try {
-                if(dataX.length > 20) {
-                    dataX.splice(0,1)
+                // old bl serial function
+                // const data = await BluetoothSerial.readFromDevice();
+                try {
+                    if (dataX.length > 20) {
+                        dataX.splice(0, 1)
+                    }
+                    if (dataY.length > 20) {
+                        dataY.splice(0, 1)
+                    }
+                    if (dataZ.length > 20) {
+                        dataZ.splice(0, 1)
+                    }
+                    Toast.showShortBottom(data);
+                    dataX.push(JSON.parse(data)['AX'])
+                    dataY.push(JSON.parse(data)['AY'])
+                    dataZ.push(JSON.parse(data)['AZ'])
+                    app.setState({ dataX: dataX })
+                    app.setState({ dataY: dataY })
+                    app.setState({ dataZ: dataZ })
+                } catch (err) {
+                    console.log(err)
                 }
-                if(dataY.length > 20) {
-                    dataY.splice(0,1)
-                }
-                if(dataZ.length > 20) {
-                    dataZ.splice(0,1)
-                }
-                Toast.showShortBottom(data);
-                dataX.push(JSON.parse(data)['AX'])
-                dataY.push(JSON.parse(data)['AY'])
-                dataZ.push(JSON.parse(data)['AZ'])
-                app.setState({dataX: dataX})
-                app.setState({dataY: dataY})
-                app.setState({dataZ: dataZ})
-            } catch(err) {
-                console.log(err)
-            }
-          }, 500);
-        } catch(e){
-          Toast.showShortBottom(e.message);
+            }, 500);
+        } catch (e) {
+            Toast.showShortBottom(e.message);
         }
-      };
+    };
 
     render() {
         const { isEnabled, dataList } = this.state
@@ -254,11 +309,11 @@ class DashboardView extends React.Component {
 
         return (
             <SafeAreaView style={{ flex: 1 }}>
-            <View style={styles.topBar}>
-              <Text style={styles.heading}>Dashboard</Text>
-            </View>
-            <View>
-                {/* <LineChart
+                <View style={styles.topBar}>
+                    <Text style={styles.heading}>Dashboard</Text>
+                </View>
+                <View>
+                    {/* <LineChart
                     data={{
                     labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
                     datasets: [
@@ -304,38 +359,38 @@ class DashboardView extends React.Component {
                 /> */}
                 </View>
                 <View style={styles.buttonView}>
-                    <Button onPress={this.startButton()} title="Start .." style={styles.buttonRaised}/>
+                    <Button onPress={this.startButton()} title="Start .." style={styles.buttonRaised} />
                     <Text>Data example in DB</Text>
-                    <View style={{width: 400}}>
+                    <View style={{ width: 400 }}>
                         {
                             dataList.map(item => {
                                 return (
-                                <Text style={{textAlign: 'center', width: 400}}>{ '' + JSON.stringify(item)}</Text>
+                                    <Text style={{ textAlign: 'center', width: 400 }}>{'' + JSON.stringify(item)}</Text>
                                 )
                             })
                         }
                     </View>
-                    
+
                 </View>
             </SafeAreaView>
         )
     }
-    
+
 }
 const mapStateToProps = (state) => {
     console.log(state)
 
     const { device, alreadyMounted } = state
     return { device, alreadyMounted }
-  };
+};
 
 const mapDispatchToProps = dispatch => {
     return {
-      mounted: (name) => {
-        console.log(name)
-        dispatch(addMounted(name))
-      }
+        mounted: (name) => {
+            console.log(name)
+            dispatch(addMounted(name))
+        }
     }
-  }
-  
+}
+
 export default connect(mapStateToProps, mapDispatchToProps)(DashboardView);
