@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     elevation: 6,
-    backgroundColor: "#117893"
+    backgroundColor: "#4ec5a5"
   },
   heading: {
     fontWeight: "bold",
@@ -80,6 +80,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#22509d",
     borderRadius: 2,
     elevation: 2
+  },
+
+  // dashboard
+  dashboardStat: {
+    width: 300,
+    height: 300,
+    borderColor: 'lightgrey',
+    marginVertical: 8,
+    borderRadius: 16,
+    borderWidth:1
   }
 });
 

@@ -33,8 +33,8 @@ class App extends React.Component {
             <DashboardView />
           </TabBar.Item>
           <TabBar.Item
-            icon="broadcast-tower"
-            selectedIcon="broadcast-tower"
+            icon="hand-paper"
+            selectedIcon="hand-paper"
             title="Blue"
             screenBackgroundColor={{ backgroundColor: '#F08080' }}
           >

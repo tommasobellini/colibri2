@@ -42,14 +42,14 @@ export default class TabBar extends Component{
             throw new Error('Three tab should be work.');
         }
         this.state = {
-            selectedIndex: 1,
-            defaultPage: 1,
+            selectedIndex: 0,
+            defaultPage: 0,
             navFontSize: 12,
             navTextColor: 'rgb(148, 148, 148)',
             navTextColorSelected: 'rgb(51, 163, 244)',
             circleRadius: new Animated.Value(546),
             pathD: new Animated.Value(357),
-            pathX: '357',
+            pathX: '22',
             pathY: '675',
             pathA: '689',
             pathB: '706',
@@ -99,6 +99,7 @@ export default class TabBar extends Component{
                     <View style={styles.subContent}>
                         {
                             React.Children.map(children,  (child,i) => {
+                                console.log(selectedIndex === i)
                                 const imgSrc = selectedIndex === i && showIcon ?
                                     <View style={styles.circle}>
                                         <Icon name={child.props.selectedIcon} size={30} color="#117893" />
@@ -139,7 +140,7 @@ export default class TabBar extends Component{
                             ref={ ref => this._myCircle = ref }
                             fill={bgNavBarSelector ? bgNavBarSelector : '#f0f0f0'}
                             stroke={stroke ? stroke : '#f0f0f0'}
-                            cx="546" cy="100"
+                            cx="211" cy="100"
                             r="100"
                         />
                     </Svg>

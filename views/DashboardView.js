@@ -9,7 +9,9 @@ import {
   Switch,
   ActivityIndicator,
   Button,
-  Dimensions
+  Dimensions,
+  Modal,
+  Image
 } from "react-native";
 import {
   LineChart,
@@ -34,7 +36,8 @@ import firestore from '@react-native-firebase/firestore';
 import { BleManager } from "react-native-ble-plx"
 import { connect } from 'react-redux';
 import { addMounted } from '../store/actions/BleActions';
-
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import BluetoothView from "./BluetoothView";
 // First View (from top)
 const TOP_VIEW_MIN_AX = -0.03;
 const TOP_VIEW_MIN_AY = -0.03;
@@ -48,6 +51,7 @@ class DashboardView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      modalVisible: false,
       isEnabled: true,
       isAlreadyMounted: false,
       dataList: [],
@@ -56,6 +60,9 @@ class DashboardView extends React.Component {
       dataY: [0],
       dataZ: [0]
     };
+  }
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
   }
   componentDidMount() {
     const backUrl = 'http://192.168.1.80:3000/v1/'
@@ -253,6 +260,9 @@ class DashboardView extends React.Component {
     this.read(app)
 
   }
+  openConnectionPage = () => {
+    Toast.showLongTop('connection page clicked')
+  }
 
   read = async (app) => {
     app.setState({ ciao: false })
@@ -315,10 +325,52 @@ class DashboardView extends React.Component {
 
     return (
       <SafeAreaView style={{ flex: 1 }}>
+         <Modal
+          animationType="slide"
+          style={{backgroundColor: '#4ec5a5'}}
+          transparent={true}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <View style={{marginTop: 50, marginLeft: 20, marginRight: 20, borderColor: '#4ec5a5',backgroundColor: '#4ec5a5'}}>
+            <BluetoothView/>
+          </View>
+        </Modal>
         <View style={styles.topBar}>
           <Text style={styles.heading}>Dashboard</Text>
+          <TouchableHighlight
+              underlayColor={'transparent'}
+              onPress={() => {
+                this.setModalVisible(true);
+              }}
+          >
+          <Icon name={'plus'} size={25} color="#fff" onPress={this.openConnectionPage()}/>
+
+          </TouchableHighlight>
         </View>
-        <View>
+        <View style={{flex:1, width: '100%', marginTop: 100, height: 200, flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
+          <View style={{height: 150, width: 150, borderColor: '#4ec5a5', opacity: 0.5, borderWidth:17, shadowColor: '#000', shadowOffset: {width: 0, height: 9}, shadowRadius: 50, shadowOpacity: 0.50, borderRadius: 100}}>
+            <View style={{ flex:1, alignContent: 'center', justifyContent: 'center', flexDirection: 'row'}}>
+              <View style={{ marginTop: 43,  height: 25, width: 25, backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
+              <View style={{ marginTop: 43, marginLeft: 10, height: 25, width: 25, opacity: 0.5, backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
+              <View style={{ marginTop: 43, marginLeft: 10, height: 25, width: 25,  backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
+            </View>
+           
+          </View>
+        </View>
+        <View style={{flex:1, flexDirection: "row", marginTop: 300, alignItems: "center", justifyContent: "center"}}>
+          <View style={styles.dashboardStat}>
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: 15, justifyContent: "center"}}>
+              <Image source={require('../assets/Stress.png')} style={{ width: 70, height: 70, resizeMode: 'stretch'}}/>
+              <Text style={{textTransform: 'uppercase', marginTop: 20, marginLeft: 10,fontWeight: 'bold', fontSize: 25}}>Stress : <Text style={{color: '#fbb03b'}}>300</Text> </Text>
+            </View>
+            <View style={{ width: '100%',fontWeight: 'bold', opacity: 0.5, backgroundColor: 'lightgrey', flex:1, flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
+              <Text style={{fontWeight: 'bold', marginBottom: 15}}>VIBES</Text>
+              <Text style={{fontWeight: 'bold', marginBottom: 15}}>BPM</Text>
+              <Text style={{fontWeight: 'bold', marginBottom: 15}}>IR</Text>
+            </View>
+          </View>
           {/* <LineChart
                     data={{
                     labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
@@ -365,7 +417,7 @@ class DashboardView extends React.Component {
                 /> */}
         </View>
         <View style={styles.buttonView}>
-          <Button onPress={this.startButton()} title="Start .." style={styles.buttonRaised} />
+          {/* <Button onPress={this.startButton()} title="Start .." style={styles.buttonRaised} />
           <Text>Data example in DB</Text>
           <View style={{ width: 400 }}>
             {
@@ -375,7 +427,7 @@ class DashboardView extends React.Component {
                 )
               })
             }
-          </View>
+          </View> */}
 
         </View>
       </SafeAreaView>

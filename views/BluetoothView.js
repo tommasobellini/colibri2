@@ -340,7 +340,7 @@ class BluetoothView extends React.Component {
         this.setState({device: connected})
         this.props.add(connected);
 
-        Toast.showShortTop('' + connected.mtu)
+        Toast.showShortTop('' + connected.mtu)  
           
          
         //   const all = await manager.servicesForDevice(id)
@@ -648,7 +648,7 @@ class BluetoothView extends React.Component {
     const { isEnabled, device, devices, scanning, processing } = this.state;
 
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#4ec5a5' }}>
         <View style={styles.topBar}>
           <Text style={styles.heading}>Device</Text>
           <View style={styles.enableInfoWrapper}>
@@ -664,7 +664,8 @@ class BluetoothView extends React.Component {
               style={{
                 flex: 1,
                 alignItems: "center",
-                justifyContent: "center"
+                justifyContent: "center",
+                
               }}
             >
               <ActivityIndicator
