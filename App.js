@@ -3,11 +3,11 @@ import {
   View, Text
 } from "react-native";
 import TabBar from "./components/TabBar";
-import BluetoothView from "./views/BluetoothView";
 import DashboardView from "./views/DashboardView";
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import configureStore from './store/index'
+import Hand3dView from './views/Hand3dView';
 
 const store = configureStore()
 
@@ -38,7 +38,7 @@ class App extends React.Component {
             title="Blue"
             screenBackgroundColor={{ backgroundColor: '#F08080' }}
           >
-            <BluetoothView />
+            <Hand3dView />
           </TabBar.Item>
           <TabBar.Item
             icon="sliders-h"

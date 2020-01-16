@@ -83,13 +83,125 @@ const styles = StyleSheet.create({
   },
 
   // dashboard
-  dashboardStat: {
+  // animation
+  showRing: {
+    opacity: 1
+  },
+  hideRing: {
+    opacity: 0,
+  },
+  cyclesSection: {
+    height: 250,
+    paddingLeft: 120,
+    paddingTop: 50
+  },
+  outsideRingCyclesSection: {
+    height: 150,
+    width: 150,
+    borderColor: '#4ec5a5',
+    opacity: 0.5,
+    borderWidth: 17,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 9 },
+    shadowRadius: 50,
+    shadowOpacity: 0.50,
+    borderRadius: 100 
+  },
+  insideRingsContainerCyclesSection: {
     flex: 1,
+    alignContent: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row' 
+  },
+  insideRingCyclesSection: {
+    margin: 2,
+    marginTop: 43,
+    height: 25,
+    width: 25,
+    backgroundColor: '#4ec5a5',
+    borderRadius: 50
+  },
+  insideRingWithOpacityCyclesSection: {
+    margin: 2,
+    marginTop: 43,
+    height: 25,
+    width: 25,
+    backgroundColor: '#4ec5a5',
+    borderRadius: 50,
+    opacity: 0.5,
+  },
+  testSection: {
+    height: 50,
+    marginLeft: 160
+  },
+  textTestSection: {
+    fontSize: 30,
+    color: '#4ec5a5',
+    fontWeight: 'bold'
+  },
+  statsSection: {
+    height: 350,
+    paddingLeft: 50,
+  },
+  stressStatsSection: {
     width: 300,
-    height: 300,
+    height: 100,
     borderColor: 'lightgrey',
-    borderRadius: 16,
-    borderWidth:1
+    borderWidth: 1,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  imageStressStatsSection: {
+    width: 70,
+    height: 70,
+    resizeMode: 'stretch'
+  },
+  textStressStatsSection: {
+    textTransform: 'uppercase',
+    marginLeft: 10,
+    fontWeight: 'bold',
+    fontSize: 25
+  },
+  othersStatsSection: {
+    width: 300,
+    height: 200,
+    borderColor: 'lightgrey',
+    backgroundColor: '#DCDCDC',
+    borderWidth: 1,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  centerView: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  iconsContainer: {
+    paddingTop: 15,
+    fontWeight: 'bold',
+    opacity: 1,
+    flex: 1,
+    flexDirection:"column",
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start'
+  },
+  centerIcons: {
+    flex: 1,
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginLeft: 50
+  },
+  imageIcon: {
+    width: 35,
+    height: 35,
+    resizeMode: 'stretch'
+  },
+  centerTextIcon: {
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginLeft: 5
   }
 });
 

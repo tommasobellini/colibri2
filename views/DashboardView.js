@@ -10,8 +10,8 @@ import {
   ActivityIndicator,
   Button,
   Dimensions,
-  Modal,
-  Image
+  Image,
+  Alert
 } from "react-native";
 import {
   LineChart,
@@ -38,6 +38,8 @@ import { connect } from 'react-redux';
 import { addMounted } from '../store/actions/BleActions';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import BluetoothView from "./BluetoothView";
+import Modal from "react-native-modal";
+
 // First View (from top)
 const TOP_VIEW_MIN_AX = -0.03;
 const TOP_VIEW_MIN_AY = -0.03;
@@ -58,13 +60,25 @@ class DashboardView extends React.Component {
       ciao: true,
       dataX: [0],
       dataY: [0],
-      dataZ: [0]
+      dataZ: [0],
+      isShowRing: true,
+      iconsStats: [
+        {id: 1, name: 'vibes', path: require('../assets/Vibes.png'), value: 55},
+        {id: 2, name: 'bpm', path: require('../assets/BPM.png'), value: 100},
+        {id: 3, name: 'ir', path: require('../assets/IR.png'), value: 10},
+      ]
     };
   }
   setModalVisible(visible) {
-    this.setState({modalVisible: visible});
+    this.setState({ modalVisible: visible });
+  }
+  animationBlinkRings() {
+    setInterval(() => {
+      this.setState({isShowRing: !this.state.isShowRing})
+    }, 250)
   }
   componentDidMount() {
+    this.animationBlinkRings()
     const backUrl = 'http://192.168.1.80:3000/v1/'
     // fetch(backUrl + 'data.json').then(resp => {
     //    resp.json().then(responseJson => {
@@ -325,69 +339,81 @@ class DashboardView extends React.Component {
 
     return (
       <SafeAreaView style={{ flex: 1 }}>
-         {/* <Modal
-          animationType="slide"
-          style={{backgroundColor: '#4ec5a5'}}
-          transparent={true}
-          visible={this.state.modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}>
-          <View style={{marginTop: 50, marginRight: 20, borderColor: '#4ec5a5',backgroundColor: '#4ec5a5'}}>
+        <Modal
+          isVisible={this.state.modalVisible}
+        >
+          <TouchableHighlight
+            underlayColor={'transparent'}
+          >
+            <Button title="Close" onPress={() => {
+              this.setModalVisible(false);
+            }} />
+          </TouchableHighlight>
 
+          <View style={{ flex: 1 }}>
+            <Text>Hello!</Text>
+
+            <BluetoothView />
           </View>
-        </Modal> */}
+        </Modal>
         <View style={styles.topBar}>
           <Text style={styles.heading}>Dashboard</Text>
           <TouchableHighlight
-              underlayColor={'transparent'}
-              onPress={() => {
-                this.setModalVisible(true);
-              }}
+            underlayColor={'transparent'}
+            onPress={() => {
+              this.setModalVisible(true);
+            }}
           >
-          <Icon name={'plus'} size={25} color="#fff" onPress={this.openConnectionPage()}/>
-
+            <Icon name={'plus'} size={25} color="#fff" />
           </TouchableHighlight>
         </View>
-        {/* <View style={{flex:1, width: '100%', marginTop: 100, height: 200, flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
-          <View style={{height: 150, width: 150, borderColor: '#4ec5a5', opacity: 0.5, borderWidth:17, shadowColor: '#000', shadowOffset: {width: 0, height: 9}, shadowRadius: 50, shadowOpacity: 0.50, borderRadius: 100}}>
-            <View style={{ flex:1, alignContent: 'center', justifyContent: 'center', flexDirection: 'row'}}>
-              <View style={{ marginTop: 43,  height: 25, width: 25, backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
-              <View style={{ marginTop: 43, marginLeft: 10, height: 25, width: 25, opacity: 0.5, backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
-              <View style={{ marginTop: 43, marginLeft: 10, height: 25, width: 25,  backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
-            </View>           
+        <View style={styles.cyclesSection}>
+          <View style={styles.outsideRingCyclesSection}>
+            <View style={styles.insideRingsContainerCyclesSection}>
+              <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
+              <View style={[styles.insideRingWithOpacityCyclesSection ]}></View>
+              <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
+            </View>
           </View>
-
         </View>
-        <View style={{flex:1, width: '100%', marginTop: 100, marginLeft: 160, flexDirection: 'column', alignContent: 'center', justifyContent: 'center'}}>
-          <Text style={{fontSize: 30, color: '#4ec5a5', fontWeight: 'bold'}}>TEST</Text>
-        </View> */}
-        <View style={{flex:1, flexDirection: "row",  alignItems: "center", justifyContent: "center"}}>
-          <View style={styles.dashboardStat}>
-            <View style={{ flex: 1, flexDirection: 'row', marginTop: 15, justifyContent: "center"}}>
-              <Image source={require('../assets/Stress.png')} style={{ width: 70, height: 70, resizeMode: 'stretch'}}/>
-              <Text style={{textTransform: 'uppercase', marginTop: 20, marginLeft: 10,fontWeight: 'bold', fontSize: 25}}>Stress : <Text style={{color: '#fbb03b'}}>300</Text> </Text>
+        <View style={styles.testSection}>
+            <Text style={styles.textTestSection}>TEST</Text>
+        </View>
+        <View style={styles.statsSection}>
+          <View style={styles.stressStatsSection}>
+            <View style={styles.centerView}>
+              <Image source={require('../assets/Stress.png')} style={styles.imageStressStatsSection} />
+              <Text style={ styles.textStressStatsSection }>Stress : <Text style={{ color: '#fbb03b' }}>300</Text> </Text>
             </View>
-            <View style={{ width: '100%', fontWeight: 'bold', opacity: 1, backgroundColor: 'lightgrey', flex:1, flexDirection: "column", alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-              <View style={{ marginLeft: 50, marginTop:15, flex:1, flexDirection:'row', alignContent: 'center', justifyContent: 'center'}}>
-                <Image source={require('../assets/Vibes.png')} style={{ width: 35, height: 35, resizeMode: 'stretch'}}/>
-                <Text style={{fontWeight: 'bold', marginTop: 5, marginLeft: 5}}>VIBES: <Text>55</Text></Text>
-              </View>
-              <View style={{ marginLeft: 50, flex:1, flexDirection:'row', alignContent: 'center', justifyContent: 'center'}}>
-              
-              <Image source={require('../assets/BPM.png')} style={{ width: 35, height: 35, resizeMode: 'stretch'}}/>
-
-              <Text style={{fontWeight: 'bold', marginTop: 5, marginLeft: 5}}>BPM: <Text>75</Text></Text>
-              </View>
-              <View style={{ marginLeft: 50, flex:1, flexDirection:'row', alignContent: 'center', justifyContent: 'center'}}>
-
-              <Image source={require('../assets/IR.png')} style={{ width: 35, height: 35, resizeMode: 'stretch'}}/>
-
-              <Text style={{fontWeight: 'bold', marginTop: 5, marginLeft: 5}}>IR: <Text>300</Text></Text>
-              </View>
+            <View>
             </View>
           </View>
-          {/* <LineChart
+          <View style={styles.othersStatsSection}>
+            <View style={ styles.iconsContainer }>
+              { this.state.iconsStats.map(iconStat => {
+                return (
+                  <View style={styles.centerIcons}>
+                    <Image source={ iconStat.path } style={ styles.imageIcon } />
+                    <Text style={ styles.centerTextIcon }>{iconStat.name}: <Text>{iconStat.value}</Text></Text>
+                  </View>
+                )
+              })}
+              {/* <View style={styles.centerIcons}>
+                <Image source={require('../assets/Vibes.png')} style={ styles.imageIcon } />
+                <Text style={ styles.centerTextIcon }>VIBES: <Text>55</Text></Text>
+              </View>
+              <View style={styles.centerIcons}>
+                <Image source={require('../assets/BPM.png')} style={ styles.imageIcon } />
+                <Text style={ styles.centerTextIcon }>BPM: <Text>75</Text></Text>
+              </View>
+              <View style={styles.centerIcons}>
+                <Image source={require('../assets/IR.png')} style={ styles.imageIcon } />
+                <Text style={ styles.centerTextIcon }>IR: <Text>300</Text></Text>
+              </View> */}
+            </View>
+          </View>
+        </View>
+        {/* <LineChart
                     data={{
                     labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
                     datasets: [
@@ -431,7 +457,7 @@ class DashboardView extends React.Component {
                     borderRadius: 16
                     }}
                 /> */}
-        </View>
+        {/* </View> */}
       </SafeAreaView>
     )
   }

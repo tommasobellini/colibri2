@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
         flexDirection:'column',
         zIndex: 0,
         width: (Dimensions.get('window').width - 30),
-        marginBottom: '4%',
+        marginBottom: '1%',
         left: '4%',
         right: '4%',
         position: 'absolute',
