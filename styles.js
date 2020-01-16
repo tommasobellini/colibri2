@@ -84,10 +84,10 @@ const styles = StyleSheet.create({
 
   // dashboard
   dashboardStat: {
+    flex: 1,
     width: 300,
     height: 300,
     borderColor: 'lightgrey',
-    marginVertical: 8,
     borderRadius: 16,
     borderWidth:1
   }

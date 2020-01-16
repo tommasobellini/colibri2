@@ -71,7 +71,35 @@ class BluetoothView extends React.Component {
   }
 
   async componentDidMount() {
+    const manager = new BleManager()
+    manager.state().then(resp1 => {
+      console.log('blestate ' + resp1)
+      if (resp1 === 'PoweredOn') {
+          this.listDevices().then(list => {
+            console.log(list)
+            this.setState(({ devices }) => ({
+              devices: devices.map(device => {
+                const found = list.find(v => v.id === device.id);
+                console.log(found)
+                if (found) {
+                  return {
+                    ...found,
+                    paired: true,
+                    connected: false
+                  };
+                }
+                console.log(device)
+                return device;
+              })
+            }));
+            console.log(this.state.devices)
+
+          })
+         
+      }
+    })
     this.events = this.props.events;
+    console.log(this.events);
     // BleManager.start()
     try {
       const [isEnabled, devices] = await Promise.all([
@@ -162,23 +190,13 @@ class BluetoothView extends React.Component {
 
   listDevices = async () => {
     try {
+      console.log('ciaooo')
       const list = await BluetoothSerial.list();
+      console.log(list)
+      return list
+      
+      console.log(this.devices)
 
-      this.setState(({ devices }) => ({
-        devices: devices.map(device => {
-          const found = list.find(v => v.id === device.id);
-
-          if (found) {
-            return {
-              ...found,
-              paired: true,
-              connected: false
-            };
-          }
-
-          return device;
-        })
-      }));
     } catch (e) {
       Toast.showShortBottom(e.message);
     }
@@ -683,7 +701,6 @@ class BluetoothView extends React.Component {
         ) : (
           <React.Fragment>
             {/* {this.renderModal(device, processing)} */}
-            
             <DeviceList
               devices={devices}
               onDevicePressed={device => this.toggleDeviceConnection(device)}

@@ -19,6 +19,7 @@ class TabBarItem extends Component {
     constructor(props) {
         super(props);
     }
+    
     render() {
         let child = this.props.children;
 
@@ -69,7 +70,9 @@ export default class TabBar extends Component{
             });
         });
     }
-
+    componentDidMount() {
+        this.update(0)
+    }
     render() {
         const { children, bgNavBar, bgNavBarSelector, stroke } = this.props;
         const {

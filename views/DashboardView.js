@@ -325,7 +325,7 @@ class DashboardView extends React.Component {
 
     return (
       <SafeAreaView style={{ flex: 1 }}>
-         <Modal
+         {/* <Modal
           animationType="slide"
           style={{backgroundColor: '#4ec5a5'}}
           transparent={true}
@@ -333,10 +333,10 @@ class DashboardView extends React.Component {
           onRequestClose={() => {
             Alert.alert('Modal has been closed.');
           }}>
-          <View style={{marginTop: 50, marginLeft: 20, marginRight: 20, borderColor: '#4ec5a5',backgroundColor: '#4ec5a5'}}>
-            <BluetoothView/>
+          <View style={{marginTop: 50, marginRight: 20, borderColor: '#4ec5a5',backgroundColor: '#4ec5a5'}}>
+
           </View>
-        </Modal>
+        </Modal> */}
         <View style={styles.topBar}>
           <Text style={styles.heading}>Dashboard</Text>
           <TouchableHighlight
@@ -349,26 +349,42 @@ class DashboardView extends React.Component {
 
           </TouchableHighlight>
         </View>
-        <View style={{flex:1, width: '100%', marginTop: 100, height: 200, flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
+        {/* <View style={{flex:1, width: '100%', marginTop: 100, height: 200, flexDirection: "row", alignItems: "center", justifyContent: "center"}}>
           <View style={{height: 150, width: 150, borderColor: '#4ec5a5', opacity: 0.5, borderWidth:17, shadowColor: '#000', shadowOffset: {width: 0, height: 9}, shadowRadius: 50, shadowOpacity: 0.50, borderRadius: 100}}>
             <View style={{ flex:1, alignContent: 'center', justifyContent: 'center', flexDirection: 'row'}}>
               <View style={{ marginTop: 43,  height: 25, width: 25, backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
               <View style={{ marginTop: 43, marginLeft: 10, height: 25, width: 25, opacity: 0.5, backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
               <View style={{ marginTop: 43, marginLeft: 10, height: 25, width: 25,  backgroundColor: '#4ec5a5', borderRadius: 50}}></View>
-            </View>
-           
+            </View>           
           </View>
+
         </View>
-        <View style={{flex:1, flexDirection: "row", marginTop: 300, alignItems: "center", justifyContent: "center"}}>
+        <View style={{flex:1, width: '100%', marginTop: 100, marginLeft: 160, flexDirection: 'column', alignContent: 'center', justifyContent: 'center'}}>
+          <Text style={{fontSize: 30, color: '#4ec5a5', fontWeight: 'bold'}}>TEST</Text>
+        </View> */}
+        <View style={{flex:1, flexDirection: "row",  alignItems: "center", justifyContent: "center"}}>
           <View style={styles.dashboardStat}>
             <View style={{ flex: 1, flexDirection: 'row', marginTop: 15, justifyContent: "center"}}>
               <Image source={require('../assets/Stress.png')} style={{ width: 70, height: 70, resizeMode: 'stretch'}}/>
               <Text style={{textTransform: 'uppercase', marginTop: 20, marginLeft: 10,fontWeight: 'bold', fontSize: 25}}>Stress : <Text style={{color: '#fbb03b'}}>300</Text> </Text>
             </View>
-            <View style={{ width: '100%',fontWeight: 'bold', opacity: 0.5, backgroundColor: 'lightgrey', flex:1, flexDirection: "column", alignItems: "center", justifyContent: "center"}}>
-              <Text style={{fontWeight: 'bold', marginBottom: 15}}>VIBES</Text>
-              <Text style={{fontWeight: 'bold', marginBottom: 15}}>BPM</Text>
-              <Text style={{fontWeight: 'bold', marginBottom: 15}}>IR</Text>
+            <View style={{ width: '100%', fontWeight: 'bold', opacity: 1, backgroundColor: 'lightgrey', flex:1, flexDirection: "column", alignItems: 'flex-start', justifyContent: 'flex-start'}}>
+              <View style={{ marginLeft: 50, marginTop:15, flex:1, flexDirection:'row', alignContent: 'center', justifyContent: 'center'}}>
+                <Image source={require('../assets/Vibes.png')} style={{ width: 35, height: 35, resizeMode: 'stretch'}}/>
+                <Text style={{fontWeight: 'bold', marginTop: 5, marginLeft: 5}}>VIBES: <Text>55</Text></Text>
+              </View>
+              <View style={{ marginLeft: 50, flex:1, flexDirection:'row', alignContent: 'center', justifyContent: 'center'}}>
+              
+              <Image source={require('../assets/BPM.png')} style={{ width: 35, height: 35, resizeMode: 'stretch'}}/>
+
+              <Text style={{fontWeight: 'bold', marginTop: 5, marginLeft: 5}}>BPM: <Text>75</Text></Text>
+              </View>
+              <View style={{ marginLeft: 50, flex:1, flexDirection:'row', alignContent: 'center', justifyContent: 'center'}}>
+
+              <Image source={require('../assets/IR.png')} style={{ width: 35, height: 35, resizeMode: 'stretch'}}/>
+
+              <Text style={{fontWeight: 'bold', marginTop: 5, marginLeft: 5}}>IR: <Text>300</Text></Text>
+              </View>
             </View>
           </View>
           {/* <LineChart
@@ -415,20 +431,6 @@ class DashboardView extends React.Component {
                     borderRadius: 16
                     }}
                 /> */}
-        </View>
-        <View style={styles.buttonView}>
-          {/* <Button onPress={this.startButton()} title="Start .." style={styles.buttonRaised} />
-          <Text>Data example in DB</Text>
-          <View style={{ width: 400 }}>
-            {
-              dataList.map(item => {
-                return (
-                  <Text style={{ textAlign: 'center', width: 400 }}>{'' + JSON.stringify(item)}</Text>
-                )
-              })
-            }
-          </View> */}
-
         </View>
       </SafeAreaView>
     )

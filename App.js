@@ -23,7 +23,7 @@ class App extends React.Component {
     return (
       <Provider store={store}>
         <TabBar
-          bgNavBar="#117893"
+          bgNavBar="#4ec5a5"
         >
           <TabBar.Item
             icon="home"
