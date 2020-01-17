@@ -18,7 +18,7 @@ import { addDevice } from '../store/actions/BleActions';
 import styles from '../styles'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-class Hand3dView extends React.Component {
+class SettingsView extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -29,7 +29,7 @@ class Hand3dView extends React.Component {
         return (
             <View style={{flex: 1, backgroundColor: '#fff' }}>
               <View style={styles.topBar}>
-                <Text style={styles.heading}>3D Hand</Text>
+                <Text style={styles.heading}>Settings</Text>
                 {/* <TouchableHighlight
                   underlayColor={'transparent'}
                   onPress={() => {
@@ -63,4 +63,4 @@ const mapStateToProps = (state) => {
     }
   }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Hand3dView);
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsView);

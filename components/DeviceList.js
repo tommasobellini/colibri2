@@ -55,7 +55,7 @@ class DeviceList extends React.Component {
                     style={[
                       styles.listItemStatus,
                       {
-                        backgroundColor: device.paired ? "green" : "gray"
+                        backgroundColor: device.paired ? "#4ec5a5" : "gray"
                       }
                     ]}
                   >

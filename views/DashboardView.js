@@ -77,6 +77,9 @@ class DashboardView extends React.Component {
       this.setState({isShowRing: !this.state.isShowRing})
     }, 250)
   }
+  startTest() {
+    console.log('start test')
+  }
   componentDidMount() {
     this.animationBlinkRings()
     const backUrl = 'http://192.168.1.80:3000/v1/'
@@ -345,7 +348,7 @@ class DashboardView extends React.Component {
           <TouchableHighlight
             underlayColor={'transparent'}
           >
-            <Button title="Close" onPress={() => {
+            <Button title="Close" color='#4ec5a5' onPress={() => {
               this.setModalVisible(false);
             }} />
           </TouchableHighlight>
@@ -377,7 +380,14 @@ class DashboardView extends React.Component {
           </View>
         </View>
         <View style={styles.testSection}>
-            <Text style={styles.textTestSection}>TEST</Text>
+          <View style={styles.testContainerSection}>
+            <TouchableHighlight
+              style={styles.buttonTestSection}
+              onPress={() => this.startTest()}
+            >
+              <Text>TEST</Text>
+            </TouchableHighlight>
+          </View>
         </View>
         <View style={styles.statsSection}>
           <View style={styles.stressStatsSection}>

@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import configureStore from './store/index'
 import Hand3dView from './views/Hand3dView';
+import SettingsView from './views/SettingsView';
 
 const store = configureStore()
 
@@ -46,9 +47,7 @@ class App extends React.Component {
             title="Settings"
             screenBackgroundColor={{ backgroundColor: '#485d72' }}
           >
-            <View>
-              {/*Page Content*/}
-            </View>
+            <SettingsView/>
           </TabBar.Item>
         </TabBar>
       </Provider>

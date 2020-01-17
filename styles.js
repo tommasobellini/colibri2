@@ -131,13 +131,28 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   testSection: {
-    height: 50,
-    marginLeft: 160
+    height: 70,
   },
-  textTestSection: {
-    fontSize: 30,
-    color: '#4ec5a5',
-    fontWeight: 'bold'
+  testContainerSection: {
+    marginLeft: 120,
+  },
+  buttonTestSection: {
+    backgroundColor: 'white',
+    borderColor: '#4ec5a5',
+    borderWidth: 2,
+    width: 150,
+    height: 50,
+    paddingLeft: 60,
+    paddingTop: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    
+    elevation: 5,
   },
   statsSection: {
     height: 350,
@@ -202,6 +217,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
     marginLeft: 5
+  },
+
+  // 3d hand view
+  hand3dContainer: {
+    flex: 1,
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
 
