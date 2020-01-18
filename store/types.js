@@ -1,3 +1,4 @@
 export const ADD_BLE_SERVICES = 'ADD_BLE_SERVICES';
 export const ADD_BLE_DEVICE = 'ADD_BLE_DEVICE';
 export const ADD_DASH_MOUNTED = 'ADD_DASH_MOUNTED';
+export const ADD_VIBES = 'ADD_VIBES';

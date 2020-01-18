@@ -59,9 +59,9 @@ exports.getHandPosition = functions.https.onCall((req) => {
         currentPosition = 'TOP';
     } 
     let message = ''
-    console.log(currentAXPosition);
-    console.log(currentAYPosition);
-    console.log(currentAZPosition);
+    // console.log(currentAXPosition);
+    // console.log(currentAYPosition);
+    // console.log(currentAZPosition);
     if(currentPosition != 'NULL'){
         message = 'The current hand position is: ' + currentPosition
     } else {
@@ -86,7 +86,7 @@ exports.helloWorld = functions.https.onCall((data) => {
     snapshot.forEach(doc => {
         var key = doc.id;
         var data = doc.data();
-        console.log(data)
+        // console.log(data)
         count += 1;
     });
 

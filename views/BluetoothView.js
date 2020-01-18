@@ -33,9 +33,18 @@ import { BleManager } from "react-native-ble-plx"
 // import BleManager from "react-native-ble-manager"
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { addDevice } from '../store/actions/BleActions';
+import { addDevice, addVibes } from '../store/actions/BleActions';
 import { requestMTU } from 'react-native-ble-manager';
 
+
+// First View (from top)
+const TOP_VIEW_MIN_AX = -0.03;
+const TOP_VIEW_MIN_AY = -0.03;
+const TOP_VIEW_MIN_AZ = 0.9;
+
+const TOP_VIEW_MAX_AX = 0.27;
+const TOP_VIEW_MAX_AY = 0.27;
+const TOP_VIEW_MAX_AZ = 1;
 // TODO(you): import any additional firebase services that you require for your app, e.g for auth:
 //    1) install the npm package: `yarn add @react-native-firebase/auth@alpha` - you do not need to
 //       run linking commands - this happens automatically at build time now
@@ -66,21 +75,22 @@ class BluetoothView extends React.Component {
       processing: false,
       temporing: 0,
       services: {},
-      payload: null
+      payload: null,
+      vibes: 0
     };
   }
 
   async componentDidMount() {
     const manager = new BleManager()
     manager.state().then(resp1 => {
-      console.log('blestate ' + resp1)
+      // console.log('blestate ' + resp1)
       if (resp1 === 'PoweredOn') {
           this.listDevices().then(list => {
-            console.log(list)
+            // console.log(list)
             this.setState(({ devices }) => ({
               devices: devices.map(device => {
                 const found = list.find(v => v.id === device.id);
-                console.log(found)
+                // console.log(found)
                 if (found) {
                   return {
                     ...found,
@@ -88,18 +98,18 @@ class BluetoothView extends React.Component {
                     connected: false
                   };
                 }
-                console.log(device)
+                // console.log(device)
                 return device;
               })
             }));
-            console.log(this.state.devices)
+            // console.log(this.state.devices)
 
           })
          
       }
     })
     this.events = this.props.events;
-    console.log(this.events);
+    // console.log(this.events);
     // BleManager.start()
     try {
       const [isEnabled, devices] = await Promise.all([
@@ -155,13 +165,13 @@ class BluetoothView extends React.Component {
     this.events.on("data", result => {
       if (result) {
         const { id, data } = result;
-        console.log(`Data from device ${id} : ${data}`);
+        // console.log(`Data from device ${id} : ${data}`);
       }
     });
 
     this.events.on("error", e => {
       if (e) {
-        console.log(`Error: ${e.message}`);
+        // console.log(`Error: ${e.message}`);
         Toast.showShortBottom(e.message);
       }
     });
@@ -190,13 +200,8 @@ class BluetoothView extends React.Component {
 
   listDevices = async () => {
     try {
-      console.log('ciaooo')
       const list = await BluetoothSerial.list();
-      console.log(list)
       return list
-      
-      console.log(this.devices)
-
     } catch (e) {
       Toast.showShortBottom(e.message);
     }
@@ -346,7 +351,6 @@ class BluetoothView extends React.Component {
 
   connect = async id => {
     this.setState({ processing: true });
-    console.log(this.props)
     try {
       let init = false
       let jsonList = ''
@@ -358,9 +362,157 @@ class BluetoothView extends React.Component {
         this.setState({device: connected})
         this.props.add(connected);
 
-        Toast.showShortTop('' + connected.mtu)  
+        Toast.showShortTop(JSON.stringify(connected.id))  
+        const backUrl = 'http://192.168.1.80:3000/v1/'
           
-         
+        connected.discoverAllServicesAndCharacteristics().then(async () => {
+          const not = await manager.monitorCharacteristicForDevice(connected.id, 'dfb0', 'dfb1', async (error, characteristic) => {
+            if (error) {
+              alert(JSON.stringify(error));
+              return
+            };
+            // console.log(characteristic)
+            return new Promise(resolve => {
+              // const Buffer = require("buffer").Buffer;
+              // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
+              var base64 = require('base-64');
+              const decodedValue = base64.decode(characteristic.value);
+              console.log(decodedValue)
+              if (init == true) {
+                jsonList += decodedValue
+                if (decodedValue.indexOf('}', -1) > 0) {
+                  let completeJson = jsonList
+                  // console.log(completeJson)
+                  let message = JSON.stringify({ message: JSON.parse(completeJson) })
+                  console.log(message)
+                  const AZ = JSON.parse(completeJson)['AZ']
+                  completeJson = ''
+                  jsonList = ''
+                  const min = TOP_VIEW_MIN_AZ;
+                  const max = TOP_VIEW_MAX_AZ;
+                  const step = ((max - min) / 2) / 10;
+                  const average = min + ((max - min) / 2);
+
+                  let percentageValueVibes = 0
+                  const percent_100 = [average - step * 10, average + step * 10]
+                  if (AZ >= percent_100[0] && AZ <= percent_100[1]) {
+                    percentageValueVibes = 100
+                  }
+                  const percent_90 = [average - step * 9, average + step * 9]
+                  if (AZ >= percent_90[0] && AZ <= percent_90[1]) {
+                    percentageValueVibes = 90
+
+                  }
+
+                  const percent_80 = [average - step * 8, average + step * 8]
+                  if (AZ >= percent_80[0] && AZ <= percent_80[1]) {
+                    percentageValueVibes = 80
+
+                  }
+                  const percent_70 = [average - step * 7, average + step * 7]
+                  if (AZ >= percent_70[0] && AZ <= percent_70[1]) {
+                    percentageValueVibes = 70
+
+                  }
+                  const percent_60 = [average - step * 6, average + step * 6]
+                  if (AZ >= percent_60[0] && AZ <= percent_60[1]) {
+                    percentageValueVibes = 60
+
+                  }
+                  const percent_50 = [average - step * 5, average + step * 5]
+                  if (AZ >= percent_50[0] && AZ <= percent_50[1]) {
+                    percentageValueVibes = 50
+
+                  }
+                  const percent_40 = [average - step * 4, average + step * 4]
+                  if (AZ >= percent_40[0] && AZ <= percent_40[1]) {
+                    percentageValueVibes = 40
+
+                  }
+                  const percent_30 = [average - step * 3, average + step * 3]
+                  if (AZ >= percent_30[0] && AZ <= percent_30[1]) {
+                    percentageValueVibes = 30
+
+                  }
+                  const percent_20 = [average - step * 2, average + step * 2]
+                  if (AZ >= percent_20[0] && AZ <= percent_20[1]) {
+                    percentageValueVibes = 20
+
+                  }
+
+                  const percent_10 = [average - step, average + step]
+                  if (AZ >= percent_10[0] && AZ <= percent_10[1]) {
+                    percentageValueVibes = 10
+                  }
+                  // console.log('Percentage vibes: ' + percentageValueVibes)
+                  this.setState({vibes: 50})
+                  this.props.addVibes(percentageValueVibes);
+                  // console.log(message)
+                  fetch(backUrl + 'getHandPosition', {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json',
+                      'Accept-Language': 'ru,en;q=0.9',
+                    },
+                    body: message
+                  }).then(resp => {
+                    resp.json().then(responseJson => {
+                      console.log(responseJson)
+                    })
+                  })
+                    .catch(err => {
+                      console.log(err)
+                    })
+                  // restart init json message
+                  init = false
+                  jsonList = []
+                  // check hand position
+                  //   var getHandPosition = firebase.functions().httpsCallable('getHandPosition');
+                  //   getHandPosition({message: JSON.parse(completeJson)}).then((res)=>{
+                  //       Toast.showShortBottom("message is : " + res.data.message)
+                  //       if(res.data.position === 'TOP' || res.data.position === 'BOTTOM' || res.data.position === 'SIDE') {
+                  //         var tempDataList = [];
+                  //         tempDataList.push(completeJson)
+                  //         temporing = temporing + 500
+                  //         if(temporing >= 3000) {
+                  //           if(tempDataList.length > 0) {
+                  //             tempDataList.forEach(item => {
+                  //               const snap = firestore().collection('devices').add(JSON.parse(item));
+                  //             })
+                  //             tempDataList = []
+                  //           } else {
+                  //             const snap = firestore().collection('devices').add(JSON.parse(completeJson));
+                  //           }
+                  //         }
+                  //       } else {
+                  //         temporing = 0;
+                  //       }
+
+                  //       // Toast.showShortCenter("value is : " + res.data.value)
+                  //   }).catch(function(error) {
+                  //       // Getting the Error details.
+                  //       var code = error.code;
+                  //       var message = error.message;
+                  //       var details = error.details;
+                  //       Toast.showShortBottom("error is : " + message)
+                  //       console.log("error is : " + completeJson)
+
+                  //     });
+
+
+                }
+              }
+              if (decodedValue.indexOf('{', 0) >= 0) {
+                init = true
+                jsonList += decodedValue
+              }
+
+
+              resolve(characteristic);
+            })
+          });
+        })
         //   const all = await manager.servicesForDevice(id)
         //   Toast.showLongBottom(all)
         //   manager.readCharacteristicForDevice(id, 'dfb0', 'dfb1').then(value => {
@@ -484,11 +636,11 @@ class BluetoothView extends React.Component {
     Toast.showShortBottom("ref is...");
     var temporing = 0;
     try {
-      console.log(id)
+      // console.log(id)
       setInterval(async function(){
         const data = await BluetoothSerial.readFromDevice();
         Toast.showShortTop(data);
-        console.log(typeof data)
+        // console.log(typeof data)
         
 
         var getHandPosition = firebase.functions().httpsCallable('getHandPosition');
@@ -717,17 +869,20 @@ class BluetoothView extends React.Component {
 
 
 const mapStateToProps = (state) => {
-  const { device } = state
-  console.log(state)
+  const { device, vibes } = state
+  // console.log(state)
   return { 
-    device
+    device, vibes
    }
 };
 const mapDispatchToProps = dispatch => {
   return {
     add: (name) => {
-      console.log(name)
+      // console.log(name)
       dispatch(addDevice(name))
+    },
+    addVibes: (vibes) => {
+      dispatch(addVibes(vibes))
     }
   }
 }

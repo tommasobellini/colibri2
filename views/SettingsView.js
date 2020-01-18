@@ -49,7 +49,7 @@ class SettingsView extends React.Component {
 
 const mapStateToProps = (state) => {
     const { device } = state
-    console.log(state)
+    // console.log(state)
     return { 
       device
      }
@@ -57,7 +57,7 @@ const mapStateToProps = (state) => {
   const mapDispatchToProps = dispatch => {
     return {
       add: (name) => {
-        console.log(name)
+        // console.log(name)
         dispatch(addDevice(name))
       }
     }

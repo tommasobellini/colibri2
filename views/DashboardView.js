@@ -56,6 +56,7 @@ class DashboardView extends React.Component {
       modalVisible: false,
       isEnabled: true,
       isAlreadyMounted: false,
+      vibes: 0,
       dataList: [],
       ciao: true,
       dataX: [0],
@@ -80,6 +81,10 @@ class DashboardView extends React.Component {
   startTest() {
     console.log('start test')
   }
+  // componentDidUpdate(){
+  //   console.log('did updateeee')
+  //   console.log(this.props)
+  // }
   componentDidMount() {
     this.animationBlinkRings()
     const backUrl = 'http://192.168.1.80:3000/v1/'
@@ -111,7 +116,7 @@ class DashboardView extends React.Component {
     //     console.log(err)
     // })
     if (!this.props.alreadyMounted) {
-      console.log('did mount')
+      // console.log('did mount')
       this.props.mounted(true)
       const connected = this.props.device
       const manager = new BleManager()
@@ -119,7 +124,7 @@ class DashboardView extends React.Component {
       let jsonList = ''
       var temporing = 0;
       let conne_type = typeof connected
-      console.log(typeof conne_type.toString())
+      // console.log(typeof conne_type.toString())
       if (typeof connected === 'object') {
         connected.discoverAllServicesAndCharacteristics().then(async () => {
           const not = await manager.monitorCharacteristicForDevice(connected.id, 'dfb0', 'dfb1', async (error, characteristic) => {
@@ -127,7 +132,7 @@ class DashboardView extends React.Component {
               alert(JSON.stringify(error));
               return
             };
-            console.log(characteristic)
+            // console.log(characteristic)
             return new Promise(resolve => {
               // const Buffer = require("buffer").Buffer;
               // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
@@ -137,7 +142,7 @@ class DashboardView extends React.Component {
                 jsonList += decodedValue
                 if (decodedValue.indexOf('}', -1) > 0) {
                   let completeJson = jsonList
-                  console.log(completeJson)
+                  // console.log(completeJson)
                   let message = JSON.stringify({ message: JSON.parse(completeJson) })
 
                   const AZ = JSON.parse(completeJson)['AZ']
@@ -197,8 +202,8 @@ class DashboardView extends React.Component {
                   if (AZ >= percent_10[0] && AZ <= percent_10[1]) {
                     percentageValue = 10
                   }
-                  console.log('Percentage vibes: ' + percentageValue)
-                  console.log(message)
+                  // console.log('Percentage vibes: ' + percentageValue)
+                  // console.log(message)
                   fetch(backUrl + 'getHandPosition', {
                     method: 'POST',
                     headers: {
@@ -475,15 +480,15 @@ class DashboardView extends React.Component {
 }
 const mapStateToProps = (state) => {
   console.log(state)
-
-  const { device, alreadyMounted } = state
-  return { device, alreadyMounted }
+  
+  const { device, alreadyMounted, vibes} = state
+  return { device, alreadyMounted, vibes}
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     mounted: (name) => {
-      console.log(name)
+      // console.log(name)
       dispatch(addMounted(name))
     }
   }
