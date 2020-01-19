@@ -3,6 +3,8 @@ package com.colibri2;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
+import com.swmansion.reanimated.ReanimatedPackage;
 import com.nuttawutmalee.RCTBluetoothSerial.RCTBluetoothSerialPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
