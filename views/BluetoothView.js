@@ -380,7 +380,7 @@ class BluetoothView extends React.Component {
               console.log(decodedValue)
               if (init == true) {
                 jsonList += decodedValue
-                if (decodedValue.indexOf('}', -1) > 0) {
+                if (decodedValue.indexOf('}', -1) > 0 || (decodedValue === '}')) {
                   let completeJson = jsonList
                   // console.log(completeJson)
                   let message = JSON.stringify({ message: JSON.parse(completeJson) })
