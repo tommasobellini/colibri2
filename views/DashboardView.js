@@ -59,7 +59,7 @@ class DashboardView extends React.Component {
       isAlreadyMounted: false,
       vibes: 0,
       dataList: [],
-      vibesList: [0],
+      vibesList: [0, 20,40,80],
       ciao: true,
       dataX: [0],
       dataY: [0],
@@ -371,7 +371,6 @@ class DashboardView extends React.Component {
                   percentageValue = 20
 
                 }
-
                 const percent_10 = [average - step, average + step]
                 if (AZ >= percent_10[0] && AZ <= percent_10[1]) {
                   percentageValue = 10
@@ -530,7 +529,7 @@ class DashboardView extends React.Component {
     //   });
 
     return (
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={styles.scrollView}>
         <Modal
           isVisible={this.state.modalVisible}
         >
@@ -543,8 +542,6 @@ class DashboardView extends React.Component {
           </TouchableHighlight>
 
           <View style={{ flex: 1 }}>
-            <Text>Hello!</Text>
-
             <BluetoothView />
           </View>
         </Modal>
@@ -580,25 +577,21 @@ class DashboardView extends React.Component {
         </View>
         <View>
               <LineChart
-                  data={
-                    {
-                  labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
-                  datasets: [
+                  data={{
+                    labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
+                    datasets: [
                       {
-                          data: this.state.vibesList,
-                          // color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`, // optional
-                      },
-                      // {
-                      //     data: this.state.dataY,
-                      //     color: (opacity = 1) => `rgba(0, 255, 0, ${opacity})`, // optional
-                      // },
-                      // {
-                      //     data: this.state.dataZ,
-                      //     color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-                      // }
+                        data: [
+                          Math.random() * 100,
+                          Math.random() * 100,
+                          Math.random() * 100,
+                          Math.random() * 100,
+                          Math.random() * 100,
+                          Math.random() * 100
+                        ]
+                      }
                     ]
-                  }
-                }
+                  }}
                   width={Dimensions.get("window").width} // from react-native
                   height={220}
                   yAxisLabel={"a: "}

@@ -6,6 +6,9 @@ const styles = StyleSheet.create({
     flex: 0.9,
     backgroundColor: "#f5fcff"
   },
+  scrollView: {
+    marginBottom: 100,
+  },
   topBar: {
     height: 56,
     paddingHorizontal: 16,
