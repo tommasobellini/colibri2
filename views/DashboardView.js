@@ -82,7 +82,8 @@ class DashboardView extends React.Component {
     }, 250)
   }
   startTest() {
-    console.log('start test')
+    alert('start test')
+    this.animationBlinkRings()
     const app = this
     this.read(app)
   }
@@ -91,7 +92,6 @@ class DashboardView extends React.Component {
   //   console.log(this.props)
   // }
   componentDidMount() {
-    this.animationBlinkRings()
     const backUrl = 'http://192.168.1.80:3000/v1/'
     // fetch(backUrl + 'data.json').then(resp => {
     //    resp.json().then(responseJson => {
@@ -557,15 +557,19 @@ class DashboardView extends React.Component {
           </TouchableHighlight>
         </View>
         <View style={styles.cyclesSection}>
-          <View style={styles.outsideRingCyclesSection}>
-            <View style={styles.insideRingsContainerCyclesSection}>
-              <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
-              <View style={[styles.insideRingWithOpacityCyclesSection ]}></View>
-              <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
+          <TouchableOpacity onPress={() => this.startTest()}>
+            <View style={styles.borderOutsideRingCyclesSection}>
+              <View style={styles.outsideRingCyclesSection}>
+                <View style={styles.insideRingsContainerCyclesSection}>
+                  <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
+                  <View style={[styles.insideRingWithOpacityCyclesSection ]}></View>
+                  <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
+                </View>
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
-        <View style={styles.testSection}>
+        {/* <View style={styles.testSection}>
           <View style={styles.testContainerSection}>
             <TouchableOpacity
               style={styles.buttonTestSection}
@@ -574,7 +578,7 @@ class DashboardView extends React.Component {
               <Text>{this.state.isTestRunning ? 'STOP' : 'TEST'}</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </View> */}
         <View>
               <LineChart
                   data={{
@@ -601,7 +605,7 @@ class DashboardView extends React.Component {
                       backgroundGradientFrom: "#fff",
                       backgroundGradientTo: "#fff",
                       decimalPlaces: 2, // optional, defaults to 2dp
-                      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
+                      color: (opacity = 1) => `#117893`, // optional
                       fillShadowGradient: '#fff',
                       style: {
                           borderRadius: 16

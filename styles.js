@@ -96,13 +96,19 @@ const styles = StyleSheet.create({
   cyclesSection: {
     height: 250,
     paddingLeft: 120,
-    paddingTop: 50
+    paddingTop: 50,
+  },
+  borderOutsideRingCyclesSection: {
+    borderColor: 'rgba(78,197,165, 0.2)',
+    borderRadius: 100,
+    borderWidth: 10,
+    height: 170,
+    width: 170,
   },
   outsideRingCyclesSection: {
     height: 150,
     width: 150,
-    borderColor: '#4ec5a5',
-    opacity: 0.5,
+    borderColor: 'rgba(78,197,165, 0.4)',
     borderWidth: 17,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 9 },
@@ -114,7 +120,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignContent: 'center',
     justifyContent: 'center',
-    flexDirection: 'row' 
+    flexDirection: 'row' ,
+    
   },
   insideRingCyclesSection: {
     margin: 2,
@@ -122,7 +129,8 @@ const styles = StyleSheet.create({
     height: 25,
     width: 25,
     backgroundColor: '#4ec5a5',
-    borderRadius: 50
+    borderRadius: 50,
+    opacity: 0.4
   },
   insideRingWithOpacityCyclesSection: {
     margin: 2,
@@ -131,7 +139,7 @@ const styles = StyleSheet.create({
     width: 25,
     backgroundColor: '#4ec5a5',
     borderRadius: 50,
-    opacity: 0.5,
+    opacity: 0.5
   },
   testSection: {
     height: 70,
