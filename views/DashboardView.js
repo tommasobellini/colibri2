@@ -58,7 +58,7 @@ class DashboardView extends React.Component {
       isEnabled: true,
       isAlreadyMounted: false,
       vibes: 0,
-      dataList: [],
+      dataList: [10,20,30,40,50,60,70,80,90],
       vibesList: [0, 20,40,80],
       ciao: true,
       dataX: [0],
@@ -66,6 +66,7 @@ class DashboardView extends React.Component {
       dataZ: [0],
       isShowRing: true,
       isTestRunning: false,
+      timeoutTest: null,
       iconsStats: [
         {id: 1, name: 'vibes', path: require('../assets/Vibes.png'), value: 55},
         {id: 2, name: 'bpm', path: require('../assets/BPM.png'), value: 100},
@@ -77,20 +78,40 @@ class DashboardView extends React.Component {
     this.setState({ modalVisible: visible });
   }
   animationBlinkRings() {
-    setInterval(() => {
+    let dataList = []
+    const timeoutTest = setInterval(() => {
       this.setState({isShowRing: !this.state.isShowRing})
+      dataList.push(Math.random() * 100)
+      this.setState(
+        {
+          dataList: [
+            Math.random()*100,
+            Math.random()*100,
+            Math.random()*100,
+            Math.random()*100,
+            Math.random()*100,
+            Math.random()*100,
+            Math.random()*100,
+            Math.random()*100,
+          ]
+        })
     }, 250)
+    this.setState({timeoutTest: timeoutTest})
   }
   startTest() {
-    alert('start test')
-    this.animationBlinkRings()
-    const app = this
-    this.read(app)
+    if(this.state.isTestRunning) {
+      Toast.showLongCenter('Test is stopping')
+      clearInterval(this.state.timeoutTest)
+      this.setState({isTestRunning: false})
+      this.setState({isShowRing: true})
+    } else {
+      Toast.showLongCenter('Test is starting')
+      this.animationBlinkRings()
+      this.setState({isTestRunning: true})
+      const app = this
+      this.read(app)
+    }
   }
-  // componentDidUpdate(){
-  //   console.log('did updateeee')
-  //   console.log(this.props)
-  // }
   componentDidMount() {
     const backUrl = 'http://192.168.1.80:3000/v1/'
     // fetch(backUrl + 'data.json').then(resp => {
@@ -558,8 +579,8 @@ class DashboardView extends React.Component {
         </View>
         <View style={styles.cyclesSection}>
           <TouchableOpacity onPress={() => this.startTest()}>
-            <View style={styles.borderOutsideRingCyclesSection}>
-              <View style={styles.outsideRingCyclesSection}>
+            <View style={[styles.borderOutsideRingCyclesSection, this.state.isShowRing ? styles.showColor : styles.hideColor]}>
+              <View style={[styles.outsideRingCyclesSection]}>
                 <View style={styles.insideRingsContainerCyclesSection}>
                   <View style={[styles.insideRingCyclesSection, this.state.isShowRing ? styles.showRing : styles.hideRing]}></View>
                   <View style={[styles.insideRingWithOpacityCyclesSection ]}></View>
@@ -585,28 +606,23 @@ class DashboardView extends React.Component {
                     labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
                     datasets: [
                       {
-                        data: [
-                          Math.random() * 100,
-                          Math.random() * 100,
-                          Math.random() * 100,
-                          Math.random() * 100,
-                          Math.random() * 100,
-                          Math.random() * 100
-                        ]
+                        data: this.state.dataList
                       }
                     ]
                   }}
+                  withDots={false}
+                  withInnerLines={false}
                   width={Dimensions.get("window").width} // from react-native
                   height={220}
-                  yAxisLabel={"a: "}
-                  yAxisSuffix={"m/s^2"}
+                  // yAxisLabel={"a: "}
+                  // yAxisSuffix={"m/s^2"}
                   chartConfig={{
-                      backgroundColor: "#fff",
-                      backgroundGradientFrom: "#fff",
-                      backgroundGradientTo: "#fff",
+                    backgroundColor: 'transparent',
+                    backgroundGradientFrom: 'transparent',
+                    backgroundGradientTo: 'transparent',
                       decimalPlaces: 2, // optional, defaults to 2dp
                       color: (opacity = 1) => `#117893`, // optional
-                      fillShadowGradient: '#fff',
+                      fillShadowGradient: '#f5fcff',
                       style: {
                           borderRadius: 16
                       },
@@ -618,8 +634,8 @@ class DashboardView extends React.Component {
                   }}
                   bezier
                   style={{
-                  marginVertical: 8,
-                  borderRadius: 16
+                    marginVertical: 8,
+                    borderRadius: 50
                   }}
                     /> 
           </View> 

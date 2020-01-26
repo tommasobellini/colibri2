@@ -93,10 +93,17 @@ const styles = StyleSheet.create({
   hideRing: {
     opacity: 0,
   },
+  showColor: {
+    borderColor: 'rgba(78,197,165, 0.2)',
+  },
+  hideColor: {
+    borderColor: 'rgba(255,255,255, 0.2)',
+  },
   cyclesSection: {
     height: 250,
     paddingLeft: 120,
     paddingTop: 50,
+    marginBottom: 50
   },
   borderOutsideRingCyclesSection: {
     borderColor: 'rgba(78,197,165, 0.2)',
@@ -168,6 +175,7 @@ const styles = StyleSheet.create({
   statsSection: {
     height: 350,
     paddingLeft: 50,
+    paddingTop: 40
   },
   stressStatsSection: {
     width: 300,
