@@ -58,9 +58,8 @@ class DashboardView extends React.Component {
       isEnabled: true,
       isAlreadyMounted: false,
       vibes: 0,
-      dataList: [10,20,30,40,50,60,70,80,90],
-      vibesList: [0, 20,40,80],
-      ciao: true,
+      vibesList: [0,0,0,0,0,0,0,0,0],   
+      newVibesAverage: [],   
       dataX: [0],
       dataY: [0],
       dataZ: [0],
@@ -75,7 +74,7 @@ class DashboardView extends React.Component {
     };
   }
   setModalVisible(visible) {
-    this.setState({ modalVisible: visible });
+    this.setState({ modalVisible:visible });
   }
   animationBlinkRings() {
     let dataList = []
@@ -141,7 +140,7 @@ class DashboardView extends React.Component {
     // .catch(err => {
     //     console.log(err)
     // })
-    if (!this.props.alreadyMounted) {
+    if (!this.props.alreadyMounted){
       console.log('did mount')
       this.props.mounted(true)
       const connected = this.props.device
@@ -237,7 +236,7 @@ class DashboardView extends React.Component {
                   }
                   console.log('percetuage is: ' + percentageValue)
                   vibesList.push(percentageValue)
-                  this.setState({vibesList: vibesList})
+                  this.setState({vibesList:vibesList})
                   
                   // console.log('Percentage vibes: ' + percentageValue)
                   // console.log(message)
@@ -312,14 +311,44 @@ class DashboardView extends React.Component {
 
     }
   }
+  
+  averageVibes = (oldPercentVibes) => {
+    let newVibesAverage = this.state.newVibesAverage
+    let average = 0
+    console.log("                                  ----------------------------                   average START!")
+
+    if (newVibesAverage.length < 6){
+      newVibesAverage.push(oldPercentVibes);
+      this.setState({newVibesAverage: newVibesAverage})
+      console.log("                                  ----------------------------                   average PUSH!"+ newVibesAverage.length)
+
+    }
+    else {
+      console.log("                                  ----------------------------                   average ELSE!")
+      let sum = 0
+      newVibesAverage.forEach(item => {
+        sum += item
+      })
+      average = sum/newVibesAverage.length
+      this.setState({newVibesAverage: []})
+      console.log("                                  ----------------------------                   average DONE!" + average)
+      return average
+    }
+    return average
+  }
+
   read = () => {
+    console.log("read is starting!")
     const connected = this.props.device
+    console.log(connected)
     const manager = new BleManager()
     let init = false
     let jsonList = ''
     var temporing = 0;
+    let completeJson = [];
+    let vibesList = [];
     let conne_type = typeof connected
-    // console.log(typeof conne_type.toString())
+    const backUrl = 'http://192.168.1.80:3000/v1/'
     if (typeof connected === 'object') {
       connected.discoverAllServicesAndCharacteristics().then(async () => {
         const not = await manager.monitorCharacteristicForDevice(connected.id, 'dfb0', 'dfb1', async (error, characteristic) => {
@@ -333,72 +362,84 @@ class DashboardView extends React.Component {
             // let encodedAuth = new Buffer(characteristic.isNotifying).toString("base64");
             var base64 = require('base-64');
             const decodedValue = base64.decode(characteristic.value);
+            console.log(decodedValue)
             if (init == true) {
               jsonList += decodedValue
-              if (decodedValue.indexOf('}', -1) > 0) {
+              if (decodedValue.indexOf('}', -1) > 0 || (decodedValue === '}')) {
                 let completeJson = jsonList
-                // console.log(completeJson)
-                let message = JSON.stringify({ message: JSON.parse(completeJson) })
-
+                let message = JSON.stringify({ message: JSON.parse(completeJson)})
+                console.log(message)
                 const AZ = JSON.parse(completeJson)['AZ']
+                completeJson = ''
+                jsonList = ''
                 const min = TOP_VIEW_MIN_AZ;
                 const max = TOP_VIEW_MAX_AZ;
                 const step = ((max - min) / 2) / 10;
                 const average = min + ((max - min) / 2);
 
-                let percentageValue = 0
+                let percentageValueVibes = 0
                 const percent_100 = [average - step * 10, average + step * 10]
                 if (AZ >= percent_100[0] && AZ <= percent_100[1]) {
-                  percentageValue = 100
+                  percentageValueVibes = 100
                 }
                 const percent_90 = [average - step * 9, average + step * 9]
                 if (AZ >= percent_90[0] && AZ <= percent_90[1]) {
-                  percentageValue = 90
+                  percentageValueVibes = 90
 
                 }
 
                 const percent_80 = [average - step * 8, average + step * 8]
                 if (AZ >= percent_80[0] && AZ <= percent_80[1]) {
-                  percentageValue = 80
+                  percentageValueVibes = 80
 
                 }
                 const percent_70 = [average - step * 7, average + step * 7]
                 if (AZ >= percent_70[0] && AZ <= percent_70[1]) {
-                  percentageValue = 70
+                  percentageValueVibes = 70
 
                 }
                 const percent_60 = [average - step * 6, average + step * 6]
                 if (AZ >= percent_60[0] && AZ <= percent_60[1]) {
-                  percentageValue = 60
+                  percentageValueVibes = 60
 
                 }
                 const percent_50 = [average - step * 5, average + step * 5]
                 if (AZ >= percent_50[0] && AZ <= percent_50[1]) {
-                  percentageValue = 50
+                  percentageValueVibes = 50
 
                 }
                 const percent_40 = [average - step * 4, average + step * 4]
                 if (AZ >= percent_40[0] && AZ <= percent_40[1]) {
-                  percentageValue = 40
+                  percentageValueVibes = 40
 
                 }
                 const percent_30 = [average - step * 3, average + step * 3]
                 if (AZ >= percent_30[0] && AZ <= percent_30[1]) {
-                  percentageValue = 30
+                  percentageValueVibes = 30
 
                 }
                 const percent_20 = [average - step * 2, average + step * 2]
                 if (AZ >= percent_20[0] && AZ <= percent_20[1]) {
-                  percentageValue = 20
+                  percentageValueVibes = 20
 
                 }
+
                 const percent_10 = [average - step, average + step]
                 if (AZ >= percent_10[0] && AZ <= percent_10[1]) {
-                  percentageValue = 10
+                  percentageValueVibes = 10
                 }
-                // console.log('Percentage vibes: ' + percentageValue)
+                // console.log('Percentage vibes: ' + percentageValueVibes)
+                if (vibesList.length > 20) {
+                  vibesList.splice(0, 1)
+                }
+                console.log('percetuage is: ' + percentageValueVibes)
+                let newAverage = this.averageVibes(percentageValueVibes)
+                if (newAverage != 0){
+                vibesList.push(newAverage)
+                this.setState({vibesList:vibesList})
+                }
+                
                 // console.log(message)
-                this.setState({})
                 fetch(backUrl + 'getHandPosition', {
                   method: 'POST',
                   headers: {
@@ -606,7 +647,7 @@ class DashboardView extends React.Component {
                     labels: ["0", "500", "1000", "1500", "2000", "2500", "3000", "3500", "4000"],
                     datasets: [
                       {
-                        data: this.state.dataList
+                        data: this.state.vibesList
                       }
                     ]
                   }}
@@ -724,8 +765,7 @@ class DashboardView extends React.Component {
 
 }
 const mapStateToProps = (state) => {
-  console.log(state)
-  
+
   const { device, alreadyMounted, vibes} = state
   return { device, alreadyMounted, vibes}
 };
